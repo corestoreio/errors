@@ -33,6 +33,7 @@ const (
 	BehaviourNotImplemented
 	BehaviourNotSupported
 	BehaviourNotValid
+	BehaviourReadFailed
 	BehaviourTemporary
 	BehaviourTimeout
 	BehaviourUnauthorized
@@ -73,6 +74,8 @@ func HasBehaviour(err error) int {
 		ret = BehaviourUserNotFound
 	case IsWriteFailed(err):
 		ret = BehaviourWriteFailed
+	case IsReadFailed(err):
+		ret = BehaviourReadFailed
 	}
 	return ret
 }
@@ -241,6 +244,52 @@ func IsWriteFailed(err error) bool {
 	// unwrap until we get the root cause which might also implement the
 	// behaviour.
 	return isWriteFailed(Cause(err))
+}
+
+type (
+	readFailed  struct{ wrapper }
+	readFailedf struct{ _error }
+)
+
+// NewReadFailed returns an error which wraps err that satisfies
+// IsReadFailed().
+func NewReadFailed(err error, msg string) error {
+	if err == nil {
+		return nil
+	}
+	return &readFailed{errWrapf(err, msg)}
+}
+
+// NewReadFailedf returns an formatted error that satisfies IsReadFailed().
+func NewReadFailedf(format string, args ...interface{}) error {
+	return &readFailedf{errNewf(format, args...)}
+}
+
+func isReadFailed(err error) (ok bool) {
+	type iFace interface {
+		ReadFailed() bool
+	}
+	switch et := err.(type) {
+	case *readFailed:
+		ok = true
+	case *readFailedf:
+		ok = true
+	case iFace:
+		ok = et.ReadFailed()
+	}
+	return ok
+}
+
+// IsReadFailed reports whether err was created with NewReadFailed() or
+// has a method receiver "ReadFailed() bool".
+func IsReadFailed(err error) bool {
+	// check if direct hit that err implements the behaviour.
+	if isReadFailed(err) {
+		return true
+	}
+	// unwrap until we get the root cause which might also implement the
+	// behaviour.
+	return isReadFailed(Cause(err))
 }
 
 type (

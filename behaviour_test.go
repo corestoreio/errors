@@ -33,6 +33,9 @@ func (nf testBehave) Empty() bool {
 func (nf testBehave) WriteFailed() bool {
 	return nf.ret
 }
+func (nf testBehave) ReadFailed() bool {
+	return nf.ret
+}
 func (nf testBehave) NotFound() bool {
 	return nf.ret
 }
@@ -112,7 +115,7 @@ func TestBehaviourPlain(t *testing.T) {
 			want: false,
 		},
 
-		{ // 8
+		{
 			err:  errors.New("Error1"),
 			is:   IsWriteFailed,
 			want: false,
@@ -147,6 +150,44 @@ func TestBehaviourPlain(t *testing.T) {
 		}, {
 			err:  testBehave{},
 			is:   IsWriteFailed,
+			want: false,
+		},
+
+		{
+			err:  errors.New("Error1"),
+			is:   IsReadFailed,
+			want: false,
+		}, {
+			err:  NewReadFailed(nil, "Error2"),
+			is:   IsReadFailed,
+			want: false,
+		}, {
+			err:  NewReadFailed(Error("Error2a"), "Error2"),
+			is:   IsReadFailed,
+			want: true,
+		}, {
+			err:  NewReadFailedf("Error118"),
+			is:   IsReadFailed,
+			want: true,
+		}, {
+			err:  Wrap(NewReadFailedf("Error122"), "Wrap122"),
+			is:   IsReadFailed,
+			want: true,
+		}, {
+			err:  NewNotImplemented(Wrap(NewReadFailedf("Error130"), "Wrap130"), ""),
+			is:   IsReadFailed,
+			want: true,
+		}, {
+			err:  Wrap(NewReadFailed(Wrap(NewNotImplementedf("4"), "3"), "2"), "1"),
+			is:   IsReadFailed,
+			want: false,
+		}, {
+			err:  nil,
+			is:   IsReadFailed,
+			want: false,
+		}, {
+			err:  testBehave{},
+			is:   IsReadFailed,
 			want: false,
 		},
 
@@ -678,6 +719,7 @@ func TestHasBehaviour(t *testing.T) {
 		{NewUnauthorizedf("err38"), BehaviourUnauthorized},
 		{NewUserNotFoundf("err39"), BehaviourUserNotFound},
 		{NewWriteFailedf("err40"), BehaviourWriteFailed},
+		{NewReadFailedf("err40"), BehaviourReadFailed},
 	}
 	for _, test := range tests {
 		if have, want := HasBehaviour(test.err), test.wantBehaviour; have != want {
