@@ -131,6 +131,99 @@ func TestAlreadyInUse(t *testing.T) {
 	}
 }
 
+func (nf testBehave) AlreadyCaptured() bool {
+	return nf.ret
+}
+
+func TestAlreadyCaptured(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsAlreadyCaptured, false},
+		{NewAlreadyCaptured(nil, "Error2"), IsAlreadyCaptured, false},
+		{NewAlreadyCaptured(Error("Error3a"), "Error3"), IsAlreadyCaptured, true},
+		{Wrap(NewAlreadyCapturedf("Err4"), "Wrap4"), IsAlreadyCaptured, true},
+		{NewNotImplemented(Wrap(NewAlreadyCapturedf("Err5"), "Wrap5"), "NotImplemend5"), IsAlreadyCaptured, true},
+		{Wrap(NewAlreadyCaptured(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "AlreadyCaptured6"), "Wrap6a"), IsAlreadyCaptured, true},
+		{Wrap(NewAlreadyCaptured(errors.New("I'm the cause7"), "AlreadyCaptured7"), "Wrap7"), IsAlreadyCaptured, true},
+		{NewAlreadyCapturedf("Error8"), IsAlreadyCaptured, true},
+		{nil, IsAlreadyCaptured, false},
+		{testBehave{}, IsAlreadyCaptured, false},
+		{testBehave{ret: true}, IsAlreadyCaptured, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) AlreadyRefunded() bool {
+	return nf.ret
+}
+
+func TestAlreadyRefunded(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsAlreadyRefunded, false},
+		{NewAlreadyRefunded(nil, "Error2"), IsAlreadyRefunded, false},
+		{NewAlreadyRefunded(Error("Error3a"), "Error3"), IsAlreadyRefunded, true},
+		{Wrap(NewAlreadyRefundedf("Err4"), "Wrap4"), IsAlreadyRefunded, true},
+		{NewNotImplemented(Wrap(NewAlreadyRefundedf("Err5"), "Wrap5"), "NotImplemend5"), IsAlreadyRefunded, true},
+		{Wrap(NewAlreadyRefunded(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "AlreadyRefunded6"), "Wrap6a"), IsAlreadyRefunded, true},
+		{Wrap(NewAlreadyRefunded(errors.New("I'm the cause7"), "AlreadyRefunded7"), "Wrap7"), IsAlreadyRefunded, true},
+		{NewAlreadyRefundedf("Error8"), IsAlreadyRefunded, true},
+		{nil, IsAlreadyRefunded, false},
+		{testBehave{}, IsAlreadyRefunded, false},
+		{testBehave{ret: true}, IsAlreadyRefunded, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) Blocked() bool {
+	return nf.ret
+}
+
+func TestBlocked(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsBlocked, false},
+		{NewBlocked(nil, "Error2"), IsBlocked, false},
+		{NewBlocked(Error("Error3a"), "Error3"), IsBlocked, true},
+		{Wrap(NewBlockedf("Err4"), "Wrap4"), IsBlocked, true},
+		{NewNotImplemented(Wrap(NewBlockedf("Err5"), "Wrap5"), "NotImplemend5"), IsBlocked, true},
+		{Wrap(NewBlocked(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Blocked6"), "Wrap6a"), IsBlocked, true},
+		{Wrap(NewBlocked(errors.New("I'm the cause7"), "Blocked7"), "Wrap7"), IsBlocked, true},
+		{NewBlockedf("Error8"), IsBlocked, true},
+		{nil, IsBlocked, false},
+		{testBehave{}, IsBlocked, false},
+		{testBehave{ret: true}, IsBlocked, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
 func (nf testBehave) ConnectionFailed() bool {
 	return nf.ret
 }
@@ -162,6 +255,99 @@ func TestConnectionFailed(t *testing.T) {
 	}
 }
 
+func (nf testBehave) Declined() bool {
+	return nf.ret
+}
+
+func TestDeclined(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsDeclined, false},
+		{NewDeclined(nil, "Error2"), IsDeclined, false},
+		{NewDeclined(Error("Error3a"), "Error3"), IsDeclined, true},
+		{Wrap(NewDeclinedf("Err4"), "Wrap4"), IsDeclined, true},
+		{NewNotImplemented(Wrap(NewDeclinedf("Err5"), "Wrap5"), "NotImplemend5"), IsDeclined, true},
+		{Wrap(NewDeclined(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Declined6"), "Wrap6a"), IsDeclined, true},
+		{Wrap(NewDeclined(errors.New("I'm the cause7"), "Declined7"), "Wrap7"), IsDeclined, true},
+		{NewDeclinedf("Error8"), IsDeclined, true},
+		{nil, IsDeclined, false},
+		{testBehave{}, IsDeclined, false},
+		{testBehave{ret: true}, IsDeclined, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) Denied() bool {
+	return nf.ret
+}
+
+func TestDenied(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsDenied, false},
+		{NewDenied(nil, "Error2"), IsDenied, false},
+		{NewDenied(Error("Error3a"), "Error3"), IsDenied, true},
+		{Wrap(NewDeniedf("Err4"), "Wrap4"), IsDenied, true},
+		{NewNotImplemented(Wrap(NewDeniedf("Err5"), "Wrap5"), "NotImplemend5"), IsDenied, true},
+		{Wrap(NewDenied(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Denied6"), "Wrap6a"), IsDenied, true},
+		{Wrap(NewDenied(errors.New("I'm the cause7"), "Denied7"), "Wrap7"), IsDenied, true},
+		{NewDeniedf("Error8"), IsDenied, true},
+		{nil, IsDenied, false},
+		{testBehave{}, IsDenied, false},
+		{testBehave{ret: true}, IsDenied, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) Duplicated() bool {
+	return nf.ret
+}
+
+func TestDuplicated(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsDuplicated, false},
+		{NewDuplicated(nil, "Error2"), IsDuplicated, false},
+		{NewDuplicated(Error("Error3a"), "Error3"), IsDuplicated, true},
+		{Wrap(NewDuplicatedf("Err4"), "Wrap4"), IsDuplicated, true},
+		{NewNotImplemented(Wrap(NewDuplicatedf("Err5"), "Wrap5"), "NotImplemend5"), IsDuplicated, true},
+		{Wrap(NewDuplicated(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Duplicated6"), "Wrap6a"), IsDuplicated, true},
+		{Wrap(NewDuplicated(errors.New("I'm the cause7"), "Duplicated7"), "Wrap7"), IsDuplicated, true},
+		{NewDuplicatedf("Error8"), IsDuplicated, true},
+		{nil, IsDuplicated, false},
+		{testBehave{}, IsDuplicated, false},
+		{testBehave{ret: true}, IsDuplicated, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
 func (nf testBehave) Empty() bool {
 	return nf.ret
 }
@@ -185,6 +371,37 @@ func TestEmpty(t *testing.T) {
 		{nil, IsEmpty, false},
 		{testBehave{}, IsEmpty, false},
 		{testBehave{ret: true}, IsEmpty, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) Exceeded() bool {
+	return nf.ret
+}
+
+func TestExceeded(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsExceeded, false},
+		{NewExceeded(nil, "Error2"), IsExceeded, false},
+		{NewExceeded(Error("Error3a"), "Error3"), IsExceeded, true},
+		{Wrap(NewExceededf("Err4"), "Wrap4"), IsExceeded, true},
+		{NewNotImplemented(Wrap(NewExceededf("Err5"), "Wrap5"), "NotImplemend5"), IsExceeded, true},
+		{Wrap(NewExceeded(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Exceeded6"), "Wrap6a"), IsExceeded, true},
+		{Wrap(NewExceeded(errors.New("I'm the cause7"), "Exceeded7"), "Wrap7"), IsExceeded, true},
+		{NewExceededf("Error8"), IsExceeded, true},
+		{nil, IsExceeded, false},
+		{testBehave{}, IsExceeded, false},
+		{testBehave{ret: true}, IsExceeded, true},
 	}
 	for i, test := range tests {
 		if want, have := test.want, test.is(test.err); want != have {
@@ -286,6 +503,37 @@ func TestInProgress(t *testing.T) {
 	}
 }
 
+func (nf testBehave) Insufficient() bool {
+	return nf.ret
+}
+
+func TestInsufficient(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsInsufficient, false},
+		{NewInsufficient(nil, "Error2"), IsInsufficient, false},
+		{NewInsufficient(Error("Error3a"), "Error3"), IsInsufficient, true},
+		{Wrap(NewInsufficientf("Err4"), "Wrap4"), IsInsufficient, true},
+		{NewNotImplemented(Wrap(NewInsufficientf("Err5"), "Wrap5"), "NotImplemend5"), IsInsufficient, true},
+		{Wrap(NewInsufficient(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Insufficient6"), "Wrap6a"), IsInsufficient, true},
+		{Wrap(NewInsufficient(errors.New("I'm the cause7"), "Insufficient7"), "Wrap7"), IsInsufficient, true},
+		{NewInsufficientf("Error8"), IsInsufficient, true},
+		{nil, IsInsufficient, false},
+		{testBehave{}, IsInsufficient, false},
+		{testBehave{ret: true}, IsInsufficient, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
 func (nf testBehave) Interrupted() bool {
 	return nf.ret
 }
@@ -348,11 +596,11 @@ func TestLocked(t *testing.T) {
 	}
 }
 
-func (nf testBehave) MethodNotAllowed() bool {
+func (nf testBehave) Mismatch() bool {
 	return nf.ret
 }
 
-func TestMethodNotAllowed(t *testing.T) {
+func TestMismatch(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -360,17 +608,79 @@ func TestMethodNotAllowed(t *testing.T) {
 		is   BehaviourFunc
 		want bool
 	}{
-		{errors.New("Error1"), IsMethodNotAllowed, false},
-		{NewMethodNotAllowed(nil, "Error2"), IsMethodNotAllowed, false},
-		{NewMethodNotAllowed(Error("Error3a"), "Error3"), IsMethodNotAllowed, true},
-		{Wrap(NewMethodNotAllowedf("Err4"), "Wrap4"), IsMethodNotAllowed, true},
-		{NewNotImplemented(Wrap(NewMethodNotAllowedf("Err5"), "Wrap5"), "NotImplemend5"), IsMethodNotAllowed, true},
-		{Wrap(NewMethodNotAllowed(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "MethodNotAllowed6"), "Wrap6a"), IsMethodNotAllowed, true},
-		{Wrap(NewMethodNotAllowed(errors.New("I'm the cause7"), "MethodNotAllowed7"), "Wrap7"), IsMethodNotAllowed, true},
-		{NewMethodNotAllowedf("Error8"), IsMethodNotAllowed, true},
-		{nil, IsMethodNotAllowed, false},
-		{testBehave{}, IsMethodNotAllowed, false},
-		{testBehave{ret: true}, IsMethodNotAllowed, true},
+		{errors.New("Error1"), IsMismatch, false},
+		{NewMismatch(nil, "Error2"), IsMismatch, false},
+		{NewMismatch(Error("Error3a"), "Error3"), IsMismatch, true},
+		{Wrap(NewMismatchf("Err4"), "Wrap4"), IsMismatch, true},
+		{NewNotImplemented(Wrap(NewMismatchf("Err5"), "Wrap5"), "NotImplemend5"), IsMismatch, true},
+		{Wrap(NewMismatch(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Mismatch6"), "Wrap6a"), IsMismatch, true},
+		{Wrap(NewMismatch(errors.New("I'm the cause7"), "Mismatch7"), "Wrap7"), IsMismatch, true},
+		{NewMismatchf("Error8"), IsMismatch, true},
+		{nil, IsMismatch, false},
+		{testBehave{}, IsMismatch, false},
+		{testBehave{ret: true}, IsMismatch, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) NotAcceptable() bool {
+	return nf.ret
+}
+
+func TestNotAcceptable(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsNotAcceptable, false},
+		{NewNotAcceptable(nil, "Error2"), IsNotAcceptable, false},
+		{NewNotAcceptable(Error("Error3a"), "Error3"), IsNotAcceptable, true},
+		{Wrap(NewNotAcceptablef("Err4"), "Wrap4"), IsNotAcceptable, true},
+		{NewNotImplemented(Wrap(NewNotAcceptablef("Err5"), "Wrap5"), "NotImplemend5"), IsNotAcceptable, true},
+		{Wrap(NewNotAcceptable(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "NotAcceptable6"), "Wrap6a"), IsNotAcceptable, true},
+		{Wrap(NewNotAcceptable(errors.New("I'm the cause7"), "NotAcceptable7"), "Wrap7"), IsNotAcceptable, true},
+		{NewNotAcceptablef("Error8"), IsNotAcceptable, true},
+		{nil, IsNotAcceptable, false},
+		{testBehave{}, IsNotAcceptable, false},
+		{testBehave{ret: true}, IsNotAcceptable, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) NotAllowed() bool {
+	return nf.ret
+}
+
+func TestNotAllowed(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsNotAllowed, false},
+		{NewNotAllowed(nil, "Error2"), IsNotAllowed, false},
+		{NewNotAllowed(Error("Error3a"), "Error3"), IsNotAllowed, true},
+		{Wrap(NewNotAllowedf("Err4"), "Wrap4"), IsNotAllowed, true},
+		{NewNotImplemented(Wrap(NewNotAllowedf("Err5"), "Wrap5"), "NotImplemend5"), IsNotAllowed, true},
+		{Wrap(NewNotAllowed(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "NotAllowed6"), "Wrap6a"), IsNotAllowed, true},
+		{Wrap(NewNotAllowed(errors.New("I'm the cause7"), "NotAllowed7"), "Wrap7"), IsNotAllowed, true},
+		{NewNotAllowedf("Error8"), IsNotAllowed, true},
+		{nil, IsNotAllowed, false},
+		{testBehave{}, IsNotAllowed, false},
+		{testBehave{ret: true}, IsNotAllowed, true},
 	}
 	for i, test := range tests {
 		if want, have := test.want, test.is(test.err); want != have {
@@ -565,37 +875,6 @@ func TestPermissionDenied(t *testing.T) {
 	}
 }
 
-func (nf testBehave) PreviousOwnerDied() bool {
-	return nf.ret
-}
-
-func TestPreviousOwnerDied(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		err  error
-		is   BehaviourFunc
-		want bool
-	}{
-		{errors.New("Error1"), IsPreviousOwnerDied, false},
-		{NewPreviousOwnerDied(nil, "Error2"), IsPreviousOwnerDied, false},
-		{NewPreviousOwnerDied(Error("Error3a"), "Error3"), IsPreviousOwnerDied, true},
-		{Wrap(NewPreviousOwnerDiedf("Err4"), "Wrap4"), IsPreviousOwnerDied, true},
-		{NewNotImplemented(Wrap(NewPreviousOwnerDiedf("Err5"), "Wrap5"), "NotImplemend5"), IsPreviousOwnerDied, true},
-		{Wrap(NewPreviousOwnerDied(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "PreviousOwnerDied6"), "Wrap6a"), IsPreviousOwnerDied, true},
-		{Wrap(NewPreviousOwnerDied(errors.New("I'm the cause7"), "PreviousOwnerDied7"), "Wrap7"), IsPreviousOwnerDied, true},
-		{NewPreviousOwnerDiedf("Error8"), IsPreviousOwnerDied, true},
-		{nil, IsPreviousOwnerDied, false},
-		{testBehave{}, IsPreviousOwnerDied, false},
-		{testBehave{ret: true}, IsPreviousOwnerDied, true},
-	}
-	for i, test := range tests {
-		if want, have := test.want, test.is(test.err); want != have {
-			t.Errorf("Index %d: Want %t Have %t", i, want, have)
-		}
-	}
-}
-
 func (nf testBehave) QuotaExceeded() bool {
 	return nf.ret
 }
@@ -681,6 +960,68 @@ func TestRejected(t *testing.T) {
 		{nil, IsRejected, false},
 		{testBehave{}, IsRejected, false},
 		{testBehave{ret: true}, IsRejected, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) Required() bool {
+	return nf.ret
+}
+
+func TestRequired(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsRequired, false},
+		{NewRequired(nil, "Error2"), IsRequired, false},
+		{NewRequired(Error("Error3a"), "Error3"), IsRequired, true},
+		{Wrap(NewRequiredf("Err4"), "Wrap4"), IsRequired, true},
+		{NewNotImplemented(Wrap(NewRequiredf("Err5"), "Wrap5"), "NotImplemend5"), IsRequired, true},
+		{Wrap(NewRequired(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Required6"), "Wrap6a"), IsRequired, true},
+		{Wrap(NewRequired(errors.New("I'm the cause7"), "Required7"), "Wrap7"), IsRequired, true},
+		{NewRequiredf("Error8"), IsRequired, true},
+		{nil, IsRequired, false},
+		{testBehave{}, IsRequired, false},
+		{testBehave{ret: true}, IsRequired, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) Restricted() bool {
+	return nf.ret
+}
+
+func TestRestricted(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsRestricted, false},
+		{NewRestricted(nil, "Error2"), IsRestricted, false},
+		{NewRestricted(Error("Error3a"), "Error3"), IsRestricted, true},
+		{Wrap(NewRestrictedf("Err4"), "Wrap4"), IsRestricted, true},
+		{NewNotImplemented(Wrap(NewRestrictedf("Err5"), "Wrap5"), "NotImplemend5"), IsRestricted, true},
+		{Wrap(NewRestricted(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Restricted6"), "Wrap6a"), IsRestricted, true},
+		{Wrap(NewRestricted(errors.New("I'm the cause7"), "Restricted7"), "Wrap7"), IsRestricted, true},
+		{NewRestrictedf("Error8"), IsRestricted, true},
+		{nil, IsRestricted, false},
+		{testBehave{}, IsRestricted, false},
+		{testBehave{ret: true}, IsRestricted, true},
 	}
 	for i, test := range tests {
 		if want, have := test.want, test.is(test.err); want != have {
@@ -875,6 +1216,37 @@ func TestUnauthorized(t *testing.T) {
 	}
 }
 
+func (nf testBehave) Unavailable() bool {
+	return nf.ret
+}
+
+func TestUnavailable(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsUnavailable, false},
+		{NewUnavailable(nil, "Error2"), IsUnavailable, false},
+		{NewUnavailable(Error("Error3a"), "Error3"), IsUnavailable, true},
+		{Wrap(NewUnavailablef("Err4"), "Wrap4"), IsUnavailable, true},
+		{NewNotImplemented(Wrap(NewUnavailablef("Err5"), "Wrap5"), "NotImplemend5"), IsUnavailable, true},
+		{Wrap(NewUnavailable(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Unavailable6"), "Wrap6a"), IsUnavailable, true},
+		{Wrap(NewUnavailable(errors.New("I'm the cause7"), "Unavailable7"), "Wrap7"), IsUnavailable, true},
+		{NewUnavailablef("Error8"), IsUnavailable, true},
+		{nil, IsUnavailable, false},
+		{testBehave{}, IsUnavailable, false},
+		{testBehave{ret: true}, IsUnavailable, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
 func (nf testBehave) UserNotFound() bool {
 	return nf.ret
 }
@@ -898,6 +1270,37 @@ func TestUserNotFound(t *testing.T) {
 		{nil, IsUserNotFound, false},
 		{testBehave{}, IsUserNotFound, false},
 		{testBehave{ret: true}, IsUserNotFound, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) VerificationFailed() bool {
+	return nf.ret
+}
+
+func TestVerificationFailed(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsVerificationFailed, false},
+		{NewVerificationFailed(nil, "Error2"), IsVerificationFailed, false},
+		{NewVerificationFailed(Error("Error3a"), "Error3"), IsVerificationFailed, true},
+		{Wrap(NewVerificationFailedf("Err4"), "Wrap4"), IsVerificationFailed, true},
+		{NewNotImplemented(Wrap(NewVerificationFailedf("Err5"), "Wrap5"), "NotImplemend5"), IsVerificationFailed, true},
+		{Wrap(NewVerificationFailed(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "VerificationFailed6"), "Wrap6a"), IsVerificationFailed, true},
+		{Wrap(NewVerificationFailed(errors.New("I'm the cause7"), "VerificationFailed7"), "Wrap7"), IsVerificationFailed, true},
+		{NewVerificationFailedf("Error8"), IsVerificationFailed, true},
+		{nil, IsVerificationFailed, false},
+		{testBehave{}, IsVerificationFailed, false},
+		{testBehave{ret: true}, IsVerificationFailed, true},
 	}
 	for i, test := range tests {
 		if want, have := test.want, test.is(test.err); want != have {

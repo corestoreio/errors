@@ -32,55 +32,70 @@ var behaviours = []string{
 	"alreadyClosed",
 	"alreadyExists",
 	"alreadyInUse",
+	"alreadyCaptured",
+	"alreadyRefunded",
+	"blocked",
 	"connectionFailed",
+	"declined",
+	"denied",
+	"duplicated",
 	"empty",
+	"exceeded",
 	"expired",
 	"fatal",
 	"inProgress",
+	"insufficient",
 	"interrupted",
 	"locked",
-	"methodNotAllowed",
+	"mismatch",
+	"notAcceptable",
+	"notAllowed",
 	"notFound",
 	"notImplemented",
 	"notRecoverable",
 	"notSupported",
 	"notValid",
 	"permissionDenied",
-	"previousOwnerDied", // not idea but sounds funny
 	"quotaExceeded",
 	"readFailed",
 	"rejected",
+	"required",
+	"restricted",
 	"revoked",
 	"temporary",
 	"terminated",
 	"timeout",
 	"tooLarge",
 	"unauthorized",
+	"unavailable",
 	"userNotFound",
+	"verificationFailed",
 	"writeFailed",
 	"wrongVersion",
 }
 
 func main() {
+	packageName := "errors"
+	if len(os.Args) > 2 {
+		packageName = os.Args[0]
+		behaviours = os.Args[2:]
+	}
 
 	tpl := template.Must(template.New("behaviour").Parse(behaviourTemplate))
 	tplTest := template.Must(template.New("behaviour_test").Parse(behaviourTestTemplate))
 
 	var buf bytes.Buffer
 	var bufTest bytes.Buffer
-	buf.WriteString("// Auto generated via behaviour_gen.go\n\npackage errors\n")
+	buf.WriteString("// Auto generated via behaviour_gen.go\n\npackage " + packageName + "\n")
 	bufTest.WriteString(`// Auto generated via behaviour_gen.go
 
-package errors
+package ` + packageName + `
 
 import (
 	"errors"
 	"testing"
 )
 `)
-	if len(os.Args) > 1 {
-		behaviours = os.Args[1:]
-	}
 
 	for _, b := range behaviours {
 

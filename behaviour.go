@@ -175,6 +175,135 @@ func IsAlreadyInUse(err error) bool {
 }
 
 type (
+	alreadyCaptured  struct{ wrapper }
+	alreadyCapturedf struct{ _error }
+)
+
+// NewAlreadyCaptured returns an error which wraps err that satisfies
+// IsAlreadyCaptured().
+func NewAlreadyCaptured(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &alreadyCaptured{errWrapf(err, msg, args...)}
+}
+
+// NewAlreadyCapturedf returns a formatted error that satisfies IsAlreadyCaptured().
+func NewAlreadyCapturedf(format string, args ...interface{}) error {
+	return &alreadyCapturedf{errNewf(format, args...)}
+}
+
+func isAlreadyCaptured(err error) (ok bool) {
+	type iFace interface {
+		AlreadyCaptured() bool
+	}
+	switch et := err.(type) {
+	case *alreadyCaptured:
+		ok = true
+	case *alreadyCapturedf:
+		ok = true
+	case iFace:
+		ok = et.AlreadyCaptured()
+	}
+	return
+}
+
+// IsAlreadyCaptured reports whether err was created with NewAlreadyCaptured() or
+// implements interface:
+//     type AlreadyCaptureder interface {
+//            AlreadyCaptured() bool
+//     }
+func IsAlreadyCaptured(err error) bool {
+	return CausedBehaviour(err, isAlreadyCaptured)
+}
+
+type (
+	alreadyRefunded  struct{ wrapper }
+	alreadyRefundedf struct{ _error }
+)
+
+// NewAlreadyRefunded returns an error which wraps err that satisfies
+// IsAlreadyRefunded().
+func NewAlreadyRefunded(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &alreadyRefunded{errWrapf(err, msg, args...)}
+}
+
+// NewAlreadyRefundedf returns a formatted error that satisfies IsAlreadyRefunded().
+func NewAlreadyRefundedf(format string, args ...interface{}) error {
+	return &alreadyRefundedf{errNewf(format, args...)}
+}
+
+func isAlreadyRefunded(err error) (ok bool) {
+	type iFace interface {
+		AlreadyRefunded() bool
+	}
+	switch et := err.(type) {
+	case *alreadyRefunded:
+		ok = true
+	case *alreadyRefundedf:
+		ok = true
+	case iFace:
+		ok = et.AlreadyRefunded()
+	}
+	return
+}
+
+// IsAlreadyRefunded reports whether err was created with NewAlreadyRefunded() or
+// implements interface:
+//     type AlreadyRefundeder interface {
+//            AlreadyRefunded() bool
+//     }
+func IsAlreadyRefunded(err error) bool {
+	return CausedBehaviour(err, isAlreadyRefunded)
+}
+
+type (
+	blocked  struct{ wrapper }
+	blockedf struct{ _error }
+)
+
+// NewBlocked returns an error which wraps err that satisfies
+// IsBlocked().
+func NewBlocked(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &blocked{errWrapf(err, msg, args...)}
+}
+
+// NewBlockedf returns a formatted error that satisfies IsBlocked().
+func NewBlockedf(format string, args ...interface{}) error {
+	return &blockedf{errNewf(format, args...)}
+}
+
+func isBlocked(err error) (ok bool) {
+	type iFace interface {
+		Blocked() bool
+	}
+	switch et := err.(type) {
+	case *blocked:
+		ok = true
+	case *blockedf:
+		ok = true
+	case iFace:
+		ok = et.Blocked()
+	}
+	return
+}
+
+// IsBlocked reports whether err was created with NewBlocked() or
+// implements interface:
+//     type Blockeder interface {
+//            Blocked() bool
+//     }
+func IsBlocked(err error) bool {
+	return CausedBehaviour(err, isBlocked)
+}
+
+type (
 	connectionFailed  struct{ wrapper }
 	connectionFailedf struct{ _error }
 )
@@ -218,6 +347,135 @@ func IsConnectionFailed(err error) bool {
 }
 
 type (
+	declined  struct{ wrapper }
+	declinedf struct{ _error }
+)
+
+// NewDeclined returns an error which wraps err that satisfies
+// IsDeclined().
+func NewDeclined(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &declined{errWrapf(err, msg, args...)}
+}
+
+// NewDeclinedf returns a formatted error that satisfies IsDeclined().
+func NewDeclinedf(format string, args ...interface{}) error {
+	return &declinedf{errNewf(format, args...)}
+}
+
+func isDeclined(err error) (ok bool) {
+	type iFace interface {
+		Declined() bool
+	}
+	switch et := err.(type) {
+	case *declined:
+		ok = true
+	case *declinedf:
+		ok = true
+	case iFace:
+		ok = et.Declined()
+	}
+	return
+}
+
+// IsDeclined reports whether err was created with NewDeclined() or
+// implements interface:
+//     type Declineder interface {
+//            Declined() bool
+//     }
+func IsDeclined(err error) bool {
+	return CausedBehaviour(err, isDeclined)
+}
+
+type (
+	denied  struct{ wrapper }
+	deniedf struct{ _error }
+)
+
+// NewDenied returns an error which wraps err that satisfies
+// IsDenied().
+func NewDenied(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &denied{errWrapf(err, msg, args...)}
+}
+
+// NewDeniedf returns a formatted error that satisfies IsDenied().
+func NewDeniedf(format string, args ...interface{}) error {
+	return &deniedf{errNewf(format, args...)}
+}
+
+func isDenied(err error) (ok bool) {
+	type iFace interface {
+		Denied() bool
+	}
+	switch et := err.(type) {
+	case *denied:
+		ok = true
+	case *deniedf:
+		ok = true
+	case iFace:
+		ok = et.Denied()
+	}
+	return
+}
+
+// IsDenied reports whether err was created with NewDenied() or
+// implements interface:
+//     type Denieder interface {
+//            Denied() bool
+//     }
+func IsDenied(err error) bool {
+	return CausedBehaviour(err, isDenied)
+}
+
+type (
+	duplicated  struct{ wrapper }
+	duplicatedf struct{ _error }
+)
+
+// NewDuplicated returns an error which wraps err that satisfies
+// IsDuplicated().
+func NewDuplicated(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &duplicated{errWrapf(err, msg, args...)}
+}
+
+// NewDuplicatedf returns a formatted error that satisfies IsDuplicated().
+func NewDuplicatedf(format string, args ...interface{}) error {
+	return &duplicatedf{errNewf(format, args...)}
+}
+
+func isDuplicated(err error) (ok bool) {
+	type iFace interface {
+		Duplicated() bool
+	}
+	switch et := err.(type) {
+	case *duplicated:
+		ok = true
+	case *duplicatedf:
+		ok = true
+	case iFace:
+		ok = et.Duplicated()
+	}
+	return
+}
+
+// IsDuplicated reports whether err was created with NewDuplicated() or
+// implements interface:
+//     type Duplicateder interface {
+//            Duplicated() bool
+//     }
+func IsDuplicated(err error) bool {
+	return CausedBehaviour(err, isDuplicated)
+}
+
+type (
 	empty  struct{ wrapper }
 	emptyf struct{ _error }
 )
@@ -258,6 +516,49 @@ func isEmpty(err error) (ok bool) {
 //     }
 func IsEmpty(err error) bool {
 	return CausedBehaviour(err, isEmpty)
+}
+
+type (
+	exceeded  struct{ wrapper }
+	exceededf struct{ _error }
+)
+
+// NewExceeded returns an error which wraps err that satisfies
+// IsExceeded().
+func NewExceeded(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &exceeded{errWrapf(err, msg, args...)}
+}
+
+// NewExceededf returns a formatted error that satisfies IsExceeded().
+func NewExceededf(format string, args ...interface{}) error {
+	return &exceededf{errNewf(format, args...)}
+}
+
+func isExceeded(err error) (ok bool) {
+	type iFace interface {
+		Exceeded() bool
+	}
+	switch et := err.(type) {
+	case *exceeded:
+		ok = true
+	case *exceededf:
+		ok = true
+	case iFace:
+		ok = et.Exceeded()
+	}
+	return
+}
+
+// IsExceeded reports whether err was created with NewExceeded() or
+// implements interface:
+//     type Exceededer interface {
+//            Exceeded() bool
+//     }
+func IsExceeded(err error) bool {
+	return CausedBehaviour(err, isExceeded)
 }
 
 type (
@@ -390,6 +691,49 @@ func IsInProgress(err error) bool {
 }
 
 type (
+	insufficient  struct{ wrapper }
+	insufficientf struct{ _error }
+)
+
+// NewInsufficient returns an error which wraps err that satisfies
+// IsInsufficient().
+func NewInsufficient(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &insufficient{errWrapf(err, msg, args...)}
+}
+
+// NewInsufficientf returns a formatted error that satisfies IsInsufficient().
+func NewInsufficientf(format string, args ...interface{}) error {
+	return &insufficientf{errNewf(format, args...)}
+}
+
+func isInsufficient(err error) (ok bool) {
+	type iFace interface {
+		Insufficient() bool
+	}
+	switch et := err.(type) {
+	case *insufficient:
+		ok = true
+	case *insufficientf:
+		ok = true
+	case iFace:
+		ok = et.Insufficient()
+	}
+	return
+}
+
+// IsInsufficient reports whether err was created with NewInsufficient() or
+// implements interface:
+//     type Insufficienter interface {
+//            Insufficient() bool
+//     }
+func IsInsufficient(err error) bool {
+	return CausedBehaviour(err, isInsufficient)
+}
+
+type (
 	interrupted  struct{ wrapper }
 	interruptedf struct{ _error }
 )
@@ -476,46 +820,132 @@ func IsLocked(err error) bool {
 }
 
 type (
-	methodNotAllowed  struct{ wrapper }
-	methodNotAllowedf struct{ _error }
+	mismatch  struct{ wrapper }
+	mismatchf struct{ _error }
 )
 
-// NewMethodNotAllowed returns an error which wraps err that satisfies
-// IsMethodNotAllowed().
-func NewMethodNotAllowed(err error, msg string, args ...interface{}) error {
+// NewMismatch returns an error which wraps err that satisfies
+// IsMismatch().
+func NewMismatch(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &methodNotAllowed{errWrapf(err, msg, args...)}
+	return &mismatch{errWrapf(err, msg, args...)}
 }
 
-// NewMethodNotAllowedf returns a formatted error that satisfies IsMethodNotAllowed().
-func NewMethodNotAllowedf(format string, args ...interface{}) error {
-	return &methodNotAllowedf{errNewf(format, args...)}
+// NewMismatchf returns a formatted error that satisfies IsMismatch().
+func NewMismatchf(format string, args ...interface{}) error {
+	return &mismatchf{errNewf(format, args...)}
 }
 
-func isMethodNotAllowed(err error) (ok bool) {
+func isMismatch(err error) (ok bool) {
 	type iFace interface {
-		MethodNotAllowed() bool
+		Mismatch() bool
 	}
 	switch et := err.(type) {
-	case *methodNotAllowed:
+	case *mismatch:
 		ok = true
-	case *methodNotAllowedf:
+	case *mismatchf:
 		ok = true
 	case iFace:
-		ok = et.MethodNotAllowed()
+		ok = et.Mismatch()
 	}
 	return
 }
 
-// IsMethodNotAllowed reports whether err was created with NewMethodNotAllowed() or
+// IsMismatch reports whether err was created with NewMismatch() or
 // implements interface:
-//     type MethodNotAlloweder interface {
-//            MethodNotAllowed() bool
+//     type Mismatcher interface {
+//            Mismatch() bool
 //     }
-func IsMethodNotAllowed(err error) bool {
-	return CausedBehaviour(err, isMethodNotAllowed)
+func IsMismatch(err error) bool {
+	return CausedBehaviour(err, isMismatch)
+}
+
+type (
+	notAcceptable  struct{ wrapper }
+	notAcceptablef struct{ _error }
+)
+
+// NewNotAcceptable returns an error which wraps err that satisfies
+// IsNotAcceptable().
+func NewNotAcceptable(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &notAcceptable{errWrapf(err, msg, args...)}
+}
+
+// NewNotAcceptablef returns a formatted error that satisfies IsNotAcceptable().
+func NewNotAcceptablef(format string, args ...interface{}) error {
+	return &notAcceptablef{errNewf(format, args...)}
+}
+
+func isNotAcceptable(err error) (ok bool) {
+	type iFace interface {
+		NotAcceptable() bool
+	}
+	switch et := err.(type) {
+	case *notAcceptable:
+		ok = true
+	case *notAcceptablef:
+		ok = true
+	case iFace:
+		ok = et.NotAcceptable()
+	}
+	return
+}
+
+// IsNotAcceptable reports whether err was created with NewNotAcceptable() or
+// implements interface:
+//     type NotAcceptableer interface {
+//            NotAcceptable() bool
+//     }
+func IsNotAcceptable(err error) bool {
+	return CausedBehaviour(err, isNotAcceptable)
+}
+
+type (
+	notAllowed  struct{ wrapper }
+	notAllowedf struct{ _error }
+)
+
+// NewNotAllowed returns an error which wraps err that satisfies
+// IsNotAllowed().
+func NewNotAllowed(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &notAllowed{errWrapf(err, msg, args...)}
+}
+
+// NewNotAllowedf returns a formatted error that satisfies IsNotAllowed().
+func NewNotAllowedf(format string, args ...interface{}) error {
+	return &notAllowedf{errNewf(format, args...)}
+}
+
+func isNotAllowed(err error) (ok bool) {
+	type iFace interface {
+		NotAllowed() bool
+	}
+	switch et := err.(type) {
+	case *notAllowed:
+		ok = true
+	case *notAllowedf:
+		ok = true
+	case iFace:
+		ok = et.NotAllowed()
+	}
+	return
+}
+
+// IsNotAllowed reports whether err was created with NewNotAllowed() or
+// implements interface:
+//     type NotAlloweder interface {
+//            NotAllowed() bool
+//     }
+func IsNotAllowed(err error) bool {
+	return CausedBehaviour(err, isNotAllowed)
 }
 
 type (
@@ -777,49 +1207,6 @@ func IsPermissionDenied(err error) bool {
 }
 
 type (
-	previousOwnerDied  struct{ wrapper }
-	previousOwnerDiedf struct{ _error }
-)
-
-// NewPreviousOwnerDied returns an error which wraps err that satisfies
-// IsPreviousOwnerDied().
-func NewPreviousOwnerDied(err error, msg string, args ...interface{}) error {
-	if err == nil {
-		return nil
-	}
-	return &previousOwnerDied{errWrapf(err, msg, args...)}
-}
-
-// NewPreviousOwnerDiedf returns a formatted error that satisfies IsPreviousOwnerDied().
-func NewPreviousOwnerDiedf(format string, args ...interface{}) error {
-	return &previousOwnerDiedf{errNewf(format, args...)}
-}
-
-func isPreviousOwnerDied(err error) (ok bool) {
-	type iFace interface {
-		PreviousOwnerDied() bool
-	}
-	switch et := err.(type) {
-	case *previousOwnerDied:
-		ok = true
-	case *previousOwnerDiedf:
-		ok = true
-	case iFace:
-		ok = et.PreviousOwnerDied()
-	}
-	return
-}
-
-// IsPreviousOwnerDied reports whether err was created with NewPreviousOwnerDied() or
-// implements interface:
-//     type PreviousOwnerDieder interface {
-//            PreviousOwnerDied() bool
-//     }
-func IsPreviousOwnerDied(err error) bool {
-	return CausedBehaviour(err, isPreviousOwnerDied)
-}
-
-type (
 	quotaExceeded  struct{ wrapper }
 	quotaExceededf struct{ _error }
 )
@@ -946,6 +1333,92 @@ func isRejected(err error) (ok bool) {
 //     }
 func IsRejected(err error) bool {
 	return CausedBehaviour(err, isRejected)
+}
+
+type (
+	required  struct{ wrapper }
+	requiredf struct{ _error }
+)
+
+// NewRequired returns an error which wraps err that satisfies
+// IsRequired().
+func NewRequired(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &required{errWrapf(err, msg, args...)}
+}
+
+// NewRequiredf returns a formatted error that satisfies IsRequired().
+func NewRequiredf(format string, args ...interface{}) error {
+	return &requiredf{errNewf(format, args...)}
+}
+
+func isRequired(err error) (ok bool) {
+	type iFace interface {
+		Required() bool
+	}
+	switch et := err.(type) {
+	case *required:
+		ok = true
+	case *requiredf:
+		ok = true
+	case iFace:
+		ok = et.Required()
+	}
+	return
+}
+
+// IsRequired reports whether err was created with NewRequired() or
+// implements interface:
+//     type Requireder interface {
+//            Required() bool
+//     }
+func IsRequired(err error) bool {
+	return CausedBehaviour(err, isRequired)
+}
+
+type (
+	restricted  struct{ wrapper }
+	restrictedf struct{ _error }
+)
+
+// NewRestricted returns an error which wraps err that satisfies
+// IsRestricted().
+func NewRestricted(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &restricted{errWrapf(err, msg, args...)}
+}
+
+// NewRestrictedf returns a formatted error that satisfies IsRestricted().
+func NewRestrictedf(format string, args ...interface{}) error {
+	return &restrictedf{errNewf(format, args...)}
+}
+
+func isRestricted(err error) (ok bool) {
+	type iFace interface {
+		Restricted() bool
+	}
+	switch et := err.(type) {
+	case *restricted:
+		ok = true
+	case *restrictedf:
+		ok = true
+	case iFace:
+		ok = et.Restricted()
+	}
+	return
+}
+
+// IsRestricted reports whether err was created with NewRestricted() or
+// implements interface:
+//     type Restricteder interface {
+//            Restricted() bool
+//     }
+func IsRestricted(err error) bool {
+	return CausedBehaviour(err, isRestricted)
 }
 
 type (
@@ -1207,6 +1680,49 @@ func IsUnauthorized(err error) bool {
 }
 
 type (
+	unavailable  struct{ wrapper }
+	unavailablef struct{ _error }
+)
+
+// NewUnavailable returns an error which wraps err that satisfies
+// IsUnavailable().
+func NewUnavailable(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &unavailable{errWrapf(err, msg, args...)}
+}
+
+// NewUnavailablef returns a formatted error that satisfies IsUnavailable().
+func NewUnavailablef(format string, args ...interface{}) error {
+	return &unavailablef{errNewf(format, args...)}
+}
+
+func isUnavailable(err error) (ok bool) {
+	type iFace interface {
+		Unavailable() bool
+	}
+	switch et := err.(type) {
+	case *unavailable:
+		ok = true
+	case *unavailablef:
+		ok = true
+	case iFace:
+		ok = et.Unavailable()
+	}
+	return
+}
+
+// IsUnavailable reports whether err was created with NewUnavailable() or
+// implements interface:
+//     type Unavailableer interface {
+//            Unavailable() bool
+//     }
+func IsUnavailable(err error) bool {
+	return CausedBehaviour(err, isUnavailable)
+}
+
+type (
 	userNotFound  struct{ wrapper }
 	userNotFoundf struct{ _error }
 )
@@ -1247,6 +1763,49 @@ func isUserNotFound(err error) (ok bool) {
 //     }
 func IsUserNotFound(err error) bool {
 	return CausedBehaviour(err, isUserNotFound)
+}
+
+type (
+	verificationFailed  struct{ wrapper }
+	verificationFailedf struct{ _error }
+)
+
+// NewVerificationFailed returns an error which wraps err that satisfies
+// IsVerificationFailed().
+func NewVerificationFailed(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &verificationFailed{errWrapf(err, msg, args...)}
+}
+
+// NewVerificationFailedf returns a formatted error that satisfies IsVerificationFailed().
+func NewVerificationFailedf(format string, args ...interface{}) error {
+	return &verificationFailedf{errNewf(format, args...)}
+}
+
+func isVerificationFailed(err error) (ok bool) {
+	type iFace interface {
+		VerificationFailed() bool
+	}
+	switch et := err.(type) {
+	case *verificationFailed:
+		ok = true
+	case *verificationFailedf:
+		ok = true
+	case iFace:
+		ok = et.VerificationFailed()
+	}
+	return
+}
+
+// IsVerificationFailed reports whether err was created with NewVerificationFailed() or
+// implements interface:
+//     type VerificationFaileder interface {
+//            VerificationFailed() bool
+//     }
+func IsVerificationFailed(err error) bool {
+	return CausedBehaviour(err, isVerificationFailed)
 }
 
 type (
