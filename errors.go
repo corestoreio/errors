@@ -140,10 +140,6 @@ func Wrapf(err error, format string, args ...interface{}) error {
 // be returned. If the error is nil, nil will be returned without further
 // investigation.
 func Cause(err error) error {
-	type causer interface {
-		Cause() error
-	}
-
 	for err != nil {
 		cause, ok := err.(causer)
 		if !ok {
@@ -152,4 +148,8 @@ func Cause(err error) error {
 		err = cause.Cause()
 	}
 	return err
+}
+
+type causer interface {
+	Cause() error
 }

@@ -127,17 +127,3 @@ func BenchmarkMultiErrConstant(b *testing.B) {
 		}
 	}
 }
-
-var benchmarkHasBehaviour int
-
-func BenchmarkHasBehaviour(b *testing.B) {
-	var wf = NewWriteFailedf("Failed!")
-	b.ResetTimer()
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		benchmarkHasBehaviour = HasBehaviour(wf)
-		if benchmarkHasBehaviour != BehaviourWriteFailed {
-			b.Errorf("Have: %d Want: %d", benchmarkHasBehaviour, BehaviourWriteFailed)
-		}
-	}
-}
