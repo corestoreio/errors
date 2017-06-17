@@ -174,8 +174,8 @@ func isSeparator(r rune) bool {
 
 const behaviourTemplate = `
 type (
-	{{.LcName}}  struct{ wrapper }
-	{{.LcName}}f struct{ _error }
+	{{.LcName}}  struct{ *withStack }
+	{{.LcName}}f struct{ *fundamental }
 )
 
 // New{{.TcName}} returns an error which wraps err that satisfies
@@ -184,12 +184,12 @@ func New{{.TcName}}(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &{{.LcName}}{errWrapf(err, msg, args...)}
+	return {{.LcName}}{errWrapf(err, msg, args...)}
 }
 
 // New{{.TcName}}f returns a formatted error that satisfies Is{{.TcName}}().
 func New{{.TcName}}f(format string, args ...interface{}) error {
-	return &{{.LcName}}f{errNewf(format, args...)}
+	return {{.LcName}}f{errNewf(format, args...)}
 }
 
 func is{{.TcName}}(err error) (ok bool) {
@@ -197,9 +197,9 @@ func is{{.TcName}}(err error) (ok bool) {
 		{{.TcName}}() bool
 	}
 	switch et := err.(type) {
-	case *{{.LcName}}:
+	case {{.LcName}}:
 		ok = true
-	case *{{.LcName}}f:
+	case {{.LcName}}f:
 		ok = true
 	case iFace:
 		ok = et.{{.TcName}}()
@@ -222,9 +222,7 @@ func (nf testBehave) {{.TcName}}() bool {
 	return nf.ret
 }
 
-func Test{{.TcName}}(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviour{{.TcName}}(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc

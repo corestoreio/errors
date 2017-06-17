@@ -11,9 +11,7 @@ func (nf testBehave) Aborted() bool {
 	return nf.ret
 }
 
-func TestAborted(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourAborted(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -42,9 +40,7 @@ func (nf testBehave) AlreadyClosed() bool {
 	return nf.ret
 }
 
-func TestAlreadyClosed(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourAlreadyClosed(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -73,9 +69,7 @@ func (nf testBehave) AlreadyExists() bool {
 	return nf.ret
 }
 
-func TestAlreadyExists(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourAlreadyExists(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -104,9 +98,7 @@ func (nf testBehave) AlreadyInUse() bool {
 	return nf.ret
 }
 
-func TestAlreadyInUse(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourAlreadyInUse(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -135,9 +127,7 @@ func (nf testBehave) AlreadyCaptured() bool {
 	return nf.ret
 }
 
-func TestAlreadyCaptured(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourAlreadyCaptured(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -166,9 +156,7 @@ func (nf testBehave) AlreadyRefunded() bool {
 	return nf.ret
 }
 
-func TestAlreadyRefunded(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourAlreadyRefunded(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -197,9 +185,7 @@ func (nf testBehave) Blocked() bool {
 	return nf.ret
 }
 
-func TestBlocked(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourBlocked(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -228,9 +214,7 @@ func (nf testBehave) ConnectionFailed() bool {
 	return nf.ret
 }
 
-func TestConnectionFailed(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourConnectionFailed(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -259,9 +243,7 @@ func (nf testBehave) Declined() bool {
 	return nf.ret
 }
 
-func TestDeclined(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourDeclined(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -290,9 +272,7 @@ func (nf testBehave) Denied() bool {
 	return nf.ret
 }
 
-func TestDenied(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourDenied(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -321,9 +301,7 @@ func (nf testBehave) Duplicated() bool {
 	return nf.ret
 }
 
-func TestDuplicated(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourDuplicated(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -352,9 +330,7 @@ func (nf testBehave) Empty() bool {
 	return nf.ret
 }
 
-func TestEmpty(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourEmpty(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -383,9 +359,7 @@ func (nf testBehave) Exceeded() bool {
 	return nf.ret
 }
 
-func TestExceeded(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourExceeded(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -414,9 +388,7 @@ func (nf testBehave) Expired() bool {
 	return nf.ret
 }
 
-func TestExpired(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourExpired(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -445,9 +417,7 @@ func (nf testBehave) Fatal() bool {
 	return nf.ret
 }
 
-func TestFatal(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourFatal(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -476,9 +446,7 @@ func (nf testBehave) InProgress() bool {
 	return nf.ret
 }
 
-func TestInProgress(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourInProgress(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -507,9 +475,7 @@ func (nf testBehave) Insufficient() bool {
 	return nf.ret
 }
 
-func TestInsufficient(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourInsufficient(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -538,9 +504,7 @@ func (nf testBehave) Interrupted() bool {
 	return nf.ret
 }
 
-func TestInterrupted(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourInterrupted(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -569,9 +533,7 @@ func (nf testBehave) Locked() bool {
 	return nf.ret
 }
 
-func TestLocked(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourLocked(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -600,9 +562,7 @@ func (nf testBehave) Mismatch() bool {
 	return nf.ret
 }
 
-func TestMismatch(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourMismatch(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -631,9 +591,7 @@ func (nf testBehave) NotAcceptable() bool {
 	return nf.ret
 }
 
-func TestNotAcceptable(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourNotAcceptable(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -662,9 +620,7 @@ func (nf testBehave) NotAllowed() bool {
 	return nf.ret
 }
 
-func TestNotAllowed(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourNotAllowed(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -693,9 +649,7 @@ func (nf testBehave) NotFound() bool {
 	return nf.ret
 }
 
-func TestNotFound(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourNotFound(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -724,9 +678,7 @@ func (nf testBehave) NotImplemented() bool {
 	return nf.ret
 }
 
-func TestNotImplemented(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourNotImplemented(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -755,9 +707,7 @@ func (nf testBehave) NotRecoverable() bool {
 	return nf.ret
 }
 
-func TestNotRecoverable(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourNotRecoverable(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -786,9 +736,7 @@ func (nf testBehave) NotSupported() bool {
 	return nf.ret
 }
 
-func TestNotSupported(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourNotSupported(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -817,9 +765,7 @@ func (nf testBehave) NotValid() bool {
 	return nf.ret
 }
 
-func TestNotValid(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourNotValid(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -848,9 +794,7 @@ func (nf testBehave) PermissionDenied() bool {
 	return nf.ret
 }
 
-func TestPermissionDenied(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourPermissionDenied(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -879,9 +823,7 @@ func (nf testBehave) QuotaExceeded() bool {
 	return nf.ret
 }
 
-func TestQuotaExceeded(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourQuotaExceeded(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -910,9 +852,7 @@ func (nf testBehave) ReadFailed() bool {
 	return nf.ret
 }
 
-func TestReadFailed(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourReadFailed(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -941,9 +881,7 @@ func (nf testBehave) Rejected() bool {
 	return nf.ret
 }
 
-func TestRejected(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourRejected(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -972,9 +910,7 @@ func (nf testBehave) Required() bool {
 	return nf.ret
 }
 
-func TestRequired(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourRequired(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1003,9 +939,7 @@ func (nf testBehave) Restricted() bool {
 	return nf.ret
 }
 
-func TestRestricted(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourRestricted(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1034,9 +968,7 @@ func (nf testBehave) Revoked() bool {
 	return nf.ret
 }
 
-func TestRevoked(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourRevoked(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1065,9 +997,7 @@ func (nf testBehave) Temporary() bool {
 	return nf.ret
 }
 
-func TestTemporary(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourTemporary(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1096,9 +1026,7 @@ func (nf testBehave) Terminated() bool {
 	return nf.ret
 }
 
-func TestTerminated(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourTerminated(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1127,9 +1055,7 @@ func (nf testBehave) Timeout() bool {
 	return nf.ret
 }
 
-func TestTimeout(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourTimeout(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1158,9 +1084,7 @@ func (nf testBehave) TooLarge() bool {
 	return nf.ret
 }
 
-func TestTooLarge(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourTooLarge(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1189,9 +1113,7 @@ func (nf testBehave) Unauthorized() bool {
 	return nf.ret
 }
 
-func TestUnauthorized(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourUnauthorized(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1220,9 +1142,7 @@ func (nf testBehave) Unavailable() bool {
 	return nf.ret
 }
 
-func TestUnavailable(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourUnavailable(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1251,9 +1171,7 @@ func (nf testBehave) UserNotFound() bool {
 	return nf.ret
 }
 
-func TestUserNotFound(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourUserNotFound(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1282,9 +1200,7 @@ func (nf testBehave) VerificationFailed() bool {
 	return nf.ret
 }
 
-func TestVerificationFailed(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourVerificationFailed(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1313,9 +1229,7 @@ func (nf testBehave) WriteFailed() bool {
 	return nf.ret
 }
 
-func TestWriteFailed(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourWriteFailed(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc
@@ -1344,9 +1258,7 @@ func (nf testBehave) WrongVersion() bool {
 	return nf.ret
 }
 
-func TestWrongVersion(t *testing.T) {
-	t.Parallel()
-
+func TestBehaviourWrongVersion(t *testing.T) {
 	tests := []struct {
 		err  error
 		is   BehaviourFunc

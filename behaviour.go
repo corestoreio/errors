@@ -3,8 +3,8 @@
 package errors
 
 type (
-	aborted  struct{ wrapper }
-	abortedf struct{ _error }
+	aborted  struct{ *withStack }
+	abortedf struct{ *fundamental }
 )
 
 // NewAborted returns an error which wraps err that satisfies
@@ -13,12 +13,12 @@ func NewAborted(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &aborted{errWrapf(err, msg, args...)}
+	return aborted{errWrapf(err, msg, args...)}
 }
 
 // NewAbortedf returns a formatted error that satisfies IsAborted().
 func NewAbortedf(format string, args ...interface{}) error {
-	return &abortedf{errNewf(format, args...)}
+	return abortedf{errNewf(format, args...)}
 }
 
 func isAborted(err error) (ok bool) {
@@ -26,9 +26,9 @@ func isAborted(err error) (ok bool) {
 		Aborted() bool
 	}
 	switch et := err.(type) {
-	case *aborted:
+	case aborted:
 		ok = true
-	case *abortedf:
+	case abortedf:
 		ok = true
 	case iFace:
 		ok = et.Aborted()
@@ -46,8 +46,8 @@ func IsAborted(err error) bool {
 }
 
 type (
-	alreadyClosed  struct{ wrapper }
-	alreadyClosedf struct{ _error }
+	alreadyClosed  struct{ *withStack }
+	alreadyClosedf struct{ *fundamental }
 )
 
 // NewAlreadyClosed returns an error which wraps err that satisfies
@@ -56,12 +56,12 @@ func NewAlreadyClosed(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &alreadyClosed{errWrapf(err, msg, args...)}
+	return alreadyClosed{errWrapf(err, msg, args...)}
 }
 
 // NewAlreadyClosedf returns a formatted error that satisfies IsAlreadyClosed().
 func NewAlreadyClosedf(format string, args ...interface{}) error {
-	return &alreadyClosedf{errNewf(format, args...)}
+	return alreadyClosedf{errNewf(format, args...)}
 }
 
 func isAlreadyClosed(err error) (ok bool) {
@@ -69,9 +69,9 @@ func isAlreadyClosed(err error) (ok bool) {
 		AlreadyClosed() bool
 	}
 	switch et := err.(type) {
-	case *alreadyClosed:
+	case alreadyClosed:
 		ok = true
-	case *alreadyClosedf:
+	case alreadyClosedf:
 		ok = true
 	case iFace:
 		ok = et.AlreadyClosed()
@@ -89,8 +89,8 @@ func IsAlreadyClosed(err error) bool {
 }
 
 type (
-	alreadyExists  struct{ wrapper }
-	alreadyExistsf struct{ _error }
+	alreadyExists  struct{ *withStack }
+	alreadyExistsf struct{ *fundamental }
 )
 
 // NewAlreadyExists returns an error which wraps err that satisfies
@@ -99,12 +99,12 @@ func NewAlreadyExists(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &alreadyExists{errWrapf(err, msg, args...)}
+	return alreadyExists{errWrapf(err, msg, args...)}
 }
 
 // NewAlreadyExistsf returns a formatted error that satisfies IsAlreadyExists().
 func NewAlreadyExistsf(format string, args ...interface{}) error {
-	return &alreadyExistsf{errNewf(format, args...)}
+	return alreadyExistsf{errNewf(format, args...)}
 }
 
 func isAlreadyExists(err error) (ok bool) {
@@ -112,9 +112,9 @@ func isAlreadyExists(err error) (ok bool) {
 		AlreadyExists() bool
 	}
 	switch et := err.(type) {
-	case *alreadyExists:
+	case alreadyExists:
 		ok = true
-	case *alreadyExistsf:
+	case alreadyExistsf:
 		ok = true
 	case iFace:
 		ok = et.AlreadyExists()
@@ -132,8 +132,8 @@ func IsAlreadyExists(err error) bool {
 }
 
 type (
-	alreadyInUse  struct{ wrapper }
-	alreadyInUsef struct{ _error }
+	alreadyInUse  struct{ *withStack }
+	alreadyInUsef struct{ *fundamental }
 )
 
 // NewAlreadyInUse returns an error which wraps err that satisfies
@@ -142,12 +142,12 @@ func NewAlreadyInUse(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &alreadyInUse{errWrapf(err, msg, args...)}
+	return alreadyInUse{errWrapf(err, msg, args...)}
 }
 
 // NewAlreadyInUsef returns a formatted error that satisfies IsAlreadyInUse().
 func NewAlreadyInUsef(format string, args ...interface{}) error {
-	return &alreadyInUsef{errNewf(format, args...)}
+	return alreadyInUsef{errNewf(format, args...)}
 }
 
 func isAlreadyInUse(err error) (ok bool) {
@@ -155,9 +155,9 @@ func isAlreadyInUse(err error) (ok bool) {
 		AlreadyInUse() bool
 	}
 	switch et := err.(type) {
-	case *alreadyInUse:
+	case alreadyInUse:
 		ok = true
-	case *alreadyInUsef:
+	case alreadyInUsef:
 		ok = true
 	case iFace:
 		ok = et.AlreadyInUse()
@@ -175,8 +175,8 @@ func IsAlreadyInUse(err error) bool {
 }
 
 type (
-	alreadyCaptured  struct{ wrapper }
-	alreadyCapturedf struct{ _error }
+	alreadyCaptured  struct{ *withStack }
+	alreadyCapturedf struct{ *fundamental }
 )
 
 // NewAlreadyCaptured returns an error which wraps err that satisfies
@@ -185,12 +185,12 @@ func NewAlreadyCaptured(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &alreadyCaptured{errWrapf(err, msg, args...)}
+	return alreadyCaptured{errWrapf(err, msg, args...)}
 }
 
 // NewAlreadyCapturedf returns a formatted error that satisfies IsAlreadyCaptured().
 func NewAlreadyCapturedf(format string, args ...interface{}) error {
-	return &alreadyCapturedf{errNewf(format, args...)}
+	return alreadyCapturedf{errNewf(format, args...)}
 }
 
 func isAlreadyCaptured(err error) (ok bool) {
@@ -198,9 +198,9 @@ func isAlreadyCaptured(err error) (ok bool) {
 		AlreadyCaptured() bool
 	}
 	switch et := err.(type) {
-	case *alreadyCaptured:
+	case alreadyCaptured:
 		ok = true
-	case *alreadyCapturedf:
+	case alreadyCapturedf:
 		ok = true
 	case iFace:
 		ok = et.AlreadyCaptured()
@@ -218,8 +218,8 @@ func IsAlreadyCaptured(err error) bool {
 }
 
 type (
-	alreadyRefunded  struct{ wrapper }
-	alreadyRefundedf struct{ _error }
+	alreadyRefunded  struct{ *withStack }
+	alreadyRefundedf struct{ *fundamental }
 )
 
 // NewAlreadyRefunded returns an error which wraps err that satisfies
@@ -228,12 +228,12 @@ func NewAlreadyRefunded(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &alreadyRefunded{errWrapf(err, msg, args...)}
+	return alreadyRefunded{errWrapf(err, msg, args...)}
 }
 
 // NewAlreadyRefundedf returns a formatted error that satisfies IsAlreadyRefunded().
 func NewAlreadyRefundedf(format string, args ...interface{}) error {
-	return &alreadyRefundedf{errNewf(format, args...)}
+	return alreadyRefundedf{errNewf(format, args...)}
 }
 
 func isAlreadyRefunded(err error) (ok bool) {
@@ -241,9 +241,9 @@ func isAlreadyRefunded(err error) (ok bool) {
 		AlreadyRefunded() bool
 	}
 	switch et := err.(type) {
-	case *alreadyRefunded:
+	case alreadyRefunded:
 		ok = true
-	case *alreadyRefundedf:
+	case alreadyRefundedf:
 		ok = true
 	case iFace:
 		ok = et.AlreadyRefunded()
@@ -261,8 +261,8 @@ func IsAlreadyRefunded(err error) bool {
 }
 
 type (
-	blocked  struct{ wrapper }
-	blockedf struct{ _error }
+	blocked  struct{ *withStack }
+	blockedf struct{ *fundamental }
 )
 
 // NewBlocked returns an error which wraps err that satisfies
@@ -271,12 +271,12 @@ func NewBlocked(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &blocked{errWrapf(err, msg, args...)}
+	return blocked{errWrapf(err, msg, args...)}
 }
 
 // NewBlockedf returns a formatted error that satisfies IsBlocked().
 func NewBlockedf(format string, args ...interface{}) error {
-	return &blockedf{errNewf(format, args...)}
+	return blockedf{errNewf(format, args...)}
 }
 
 func isBlocked(err error) (ok bool) {
@@ -284,9 +284,9 @@ func isBlocked(err error) (ok bool) {
 		Blocked() bool
 	}
 	switch et := err.(type) {
-	case *blocked:
+	case blocked:
 		ok = true
-	case *blockedf:
+	case blockedf:
 		ok = true
 	case iFace:
 		ok = et.Blocked()
@@ -304,8 +304,8 @@ func IsBlocked(err error) bool {
 }
 
 type (
-	connectionFailed  struct{ wrapper }
-	connectionFailedf struct{ _error }
+	connectionFailed  struct{ *withStack }
+	connectionFailedf struct{ *fundamental }
 )
 
 // NewConnectionFailed returns an error which wraps err that satisfies
@@ -314,12 +314,12 @@ func NewConnectionFailed(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &connectionFailed{errWrapf(err, msg, args...)}
+	return connectionFailed{errWrapf(err, msg, args...)}
 }
 
 // NewConnectionFailedf returns a formatted error that satisfies IsConnectionFailed().
 func NewConnectionFailedf(format string, args ...interface{}) error {
-	return &connectionFailedf{errNewf(format, args...)}
+	return connectionFailedf{errNewf(format, args...)}
 }
 
 func isConnectionFailed(err error) (ok bool) {
@@ -327,9 +327,9 @@ func isConnectionFailed(err error) (ok bool) {
 		ConnectionFailed() bool
 	}
 	switch et := err.(type) {
-	case *connectionFailed:
+	case connectionFailed:
 		ok = true
-	case *connectionFailedf:
+	case connectionFailedf:
 		ok = true
 	case iFace:
 		ok = et.ConnectionFailed()
@@ -347,8 +347,8 @@ func IsConnectionFailed(err error) bool {
 }
 
 type (
-	declined  struct{ wrapper }
-	declinedf struct{ _error }
+	declined  struct{ *withStack }
+	declinedf struct{ *fundamental }
 )
 
 // NewDeclined returns an error which wraps err that satisfies
@@ -357,12 +357,12 @@ func NewDeclined(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &declined{errWrapf(err, msg, args...)}
+	return declined{errWrapf(err, msg, args...)}
 }
 
 // NewDeclinedf returns a formatted error that satisfies IsDeclined().
 func NewDeclinedf(format string, args ...interface{}) error {
-	return &declinedf{errNewf(format, args...)}
+	return declinedf{errNewf(format, args...)}
 }
 
 func isDeclined(err error) (ok bool) {
@@ -370,9 +370,9 @@ func isDeclined(err error) (ok bool) {
 		Declined() bool
 	}
 	switch et := err.(type) {
-	case *declined:
+	case declined:
 		ok = true
-	case *declinedf:
+	case declinedf:
 		ok = true
 	case iFace:
 		ok = et.Declined()
@@ -390,8 +390,8 @@ func IsDeclined(err error) bool {
 }
 
 type (
-	denied  struct{ wrapper }
-	deniedf struct{ _error }
+	denied  struct{ *withStack }
+	deniedf struct{ *fundamental }
 )
 
 // NewDenied returns an error which wraps err that satisfies
@@ -400,12 +400,12 @@ func NewDenied(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &denied{errWrapf(err, msg, args...)}
+	return denied{errWrapf(err, msg, args...)}
 }
 
 // NewDeniedf returns a formatted error that satisfies IsDenied().
 func NewDeniedf(format string, args ...interface{}) error {
-	return &deniedf{errNewf(format, args...)}
+	return deniedf{errNewf(format, args...)}
 }
 
 func isDenied(err error) (ok bool) {
@@ -413,9 +413,9 @@ func isDenied(err error) (ok bool) {
 		Denied() bool
 	}
 	switch et := err.(type) {
-	case *denied:
+	case denied:
 		ok = true
-	case *deniedf:
+	case deniedf:
 		ok = true
 	case iFace:
 		ok = et.Denied()
@@ -433,8 +433,8 @@ func IsDenied(err error) bool {
 }
 
 type (
-	duplicated  struct{ wrapper }
-	duplicatedf struct{ _error }
+	duplicated  struct{ *withStack }
+	duplicatedf struct{ *fundamental }
 )
 
 // NewDuplicated returns an error which wraps err that satisfies
@@ -443,12 +443,12 @@ func NewDuplicated(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &duplicated{errWrapf(err, msg, args...)}
+	return duplicated{errWrapf(err, msg, args...)}
 }
 
 // NewDuplicatedf returns a formatted error that satisfies IsDuplicated().
 func NewDuplicatedf(format string, args ...interface{}) error {
-	return &duplicatedf{errNewf(format, args...)}
+	return duplicatedf{errNewf(format, args...)}
 }
 
 func isDuplicated(err error) (ok bool) {
@@ -456,9 +456,9 @@ func isDuplicated(err error) (ok bool) {
 		Duplicated() bool
 	}
 	switch et := err.(type) {
-	case *duplicated:
+	case duplicated:
 		ok = true
-	case *duplicatedf:
+	case duplicatedf:
 		ok = true
 	case iFace:
 		ok = et.Duplicated()
@@ -476,8 +476,8 @@ func IsDuplicated(err error) bool {
 }
 
 type (
-	empty  struct{ wrapper }
-	emptyf struct{ _error }
+	empty  struct{ *withStack }
+	emptyf struct{ *fundamental }
 )
 
 // NewEmpty returns an error which wraps err that satisfies
@@ -486,12 +486,12 @@ func NewEmpty(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &empty{errWrapf(err, msg, args...)}
+	return empty{errWrapf(err, msg, args...)}
 }
 
 // NewEmptyf returns a formatted error that satisfies IsEmpty().
 func NewEmptyf(format string, args ...interface{}) error {
-	return &emptyf{errNewf(format, args...)}
+	return emptyf{errNewf(format, args...)}
 }
 
 func isEmpty(err error) (ok bool) {
@@ -499,9 +499,9 @@ func isEmpty(err error) (ok bool) {
 		Empty() bool
 	}
 	switch et := err.(type) {
-	case *empty:
+	case empty:
 		ok = true
-	case *emptyf:
+	case emptyf:
 		ok = true
 	case iFace:
 		ok = et.Empty()
@@ -519,8 +519,8 @@ func IsEmpty(err error) bool {
 }
 
 type (
-	exceeded  struct{ wrapper }
-	exceededf struct{ _error }
+	exceeded  struct{ *withStack }
+	exceededf struct{ *fundamental }
 )
 
 // NewExceeded returns an error which wraps err that satisfies
@@ -529,12 +529,12 @@ func NewExceeded(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &exceeded{errWrapf(err, msg, args...)}
+	return exceeded{errWrapf(err, msg, args...)}
 }
 
 // NewExceededf returns a formatted error that satisfies IsExceeded().
 func NewExceededf(format string, args ...interface{}) error {
-	return &exceededf{errNewf(format, args...)}
+	return exceededf{errNewf(format, args...)}
 }
 
 func isExceeded(err error) (ok bool) {
@@ -542,9 +542,9 @@ func isExceeded(err error) (ok bool) {
 		Exceeded() bool
 	}
 	switch et := err.(type) {
-	case *exceeded:
+	case exceeded:
 		ok = true
-	case *exceededf:
+	case exceededf:
 		ok = true
 	case iFace:
 		ok = et.Exceeded()
@@ -562,8 +562,8 @@ func IsExceeded(err error) bool {
 }
 
 type (
-	expired  struct{ wrapper }
-	expiredf struct{ _error }
+	expired  struct{ *withStack }
+	expiredf struct{ *fundamental }
 )
 
 // NewExpired returns an error which wraps err that satisfies
@@ -572,12 +572,12 @@ func NewExpired(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &expired{errWrapf(err, msg, args...)}
+	return expired{errWrapf(err, msg, args...)}
 }
 
 // NewExpiredf returns a formatted error that satisfies IsExpired().
 func NewExpiredf(format string, args ...interface{}) error {
-	return &expiredf{errNewf(format, args...)}
+	return expiredf{errNewf(format, args...)}
 }
 
 func isExpired(err error) (ok bool) {
@@ -585,9 +585,9 @@ func isExpired(err error) (ok bool) {
 		Expired() bool
 	}
 	switch et := err.(type) {
-	case *expired:
+	case expired:
 		ok = true
-	case *expiredf:
+	case expiredf:
 		ok = true
 	case iFace:
 		ok = et.Expired()
@@ -605,8 +605,8 @@ func IsExpired(err error) bool {
 }
 
 type (
-	fatal  struct{ wrapper }
-	fatalf struct{ _error }
+	fatal  struct{ *withStack }
+	fatalf struct{ *fundamental }
 )
 
 // NewFatal returns an error which wraps err that satisfies
@@ -615,12 +615,12 @@ func NewFatal(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &fatal{errWrapf(err, msg, args...)}
+	return fatal{errWrapf(err, msg, args...)}
 }
 
 // NewFatalf returns a formatted error that satisfies IsFatal().
 func NewFatalf(format string, args ...interface{}) error {
-	return &fatalf{errNewf(format, args...)}
+	return fatalf{errNewf(format, args...)}
 }
 
 func isFatal(err error) (ok bool) {
@@ -628,9 +628,9 @@ func isFatal(err error) (ok bool) {
 		Fatal() bool
 	}
 	switch et := err.(type) {
-	case *fatal:
+	case fatal:
 		ok = true
-	case *fatalf:
+	case fatalf:
 		ok = true
 	case iFace:
 		ok = et.Fatal()
@@ -648,8 +648,8 @@ func IsFatal(err error) bool {
 }
 
 type (
-	inProgress  struct{ wrapper }
-	inProgressf struct{ _error }
+	inProgress  struct{ *withStack }
+	inProgressf struct{ *fundamental }
 )
 
 // NewInProgress returns an error which wraps err that satisfies
@@ -658,12 +658,12 @@ func NewInProgress(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &inProgress{errWrapf(err, msg, args...)}
+	return inProgress{errWrapf(err, msg, args...)}
 }
 
 // NewInProgressf returns a formatted error that satisfies IsInProgress().
 func NewInProgressf(format string, args ...interface{}) error {
-	return &inProgressf{errNewf(format, args...)}
+	return inProgressf{errNewf(format, args...)}
 }
 
 func isInProgress(err error) (ok bool) {
@@ -671,9 +671,9 @@ func isInProgress(err error) (ok bool) {
 		InProgress() bool
 	}
 	switch et := err.(type) {
-	case *inProgress:
+	case inProgress:
 		ok = true
-	case *inProgressf:
+	case inProgressf:
 		ok = true
 	case iFace:
 		ok = et.InProgress()
@@ -691,8 +691,8 @@ func IsInProgress(err error) bool {
 }
 
 type (
-	insufficient  struct{ wrapper }
-	insufficientf struct{ _error }
+	insufficient  struct{ *withStack }
+	insufficientf struct{ *fundamental }
 )
 
 // NewInsufficient returns an error which wraps err that satisfies
@@ -701,12 +701,12 @@ func NewInsufficient(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &insufficient{errWrapf(err, msg, args...)}
+	return insufficient{errWrapf(err, msg, args...)}
 }
 
 // NewInsufficientf returns a formatted error that satisfies IsInsufficient().
 func NewInsufficientf(format string, args ...interface{}) error {
-	return &insufficientf{errNewf(format, args...)}
+	return insufficientf{errNewf(format, args...)}
 }
 
 func isInsufficient(err error) (ok bool) {
@@ -714,9 +714,9 @@ func isInsufficient(err error) (ok bool) {
 		Insufficient() bool
 	}
 	switch et := err.(type) {
-	case *insufficient:
+	case insufficient:
 		ok = true
-	case *insufficientf:
+	case insufficientf:
 		ok = true
 	case iFace:
 		ok = et.Insufficient()
@@ -734,8 +734,8 @@ func IsInsufficient(err error) bool {
 }
 
 type (
-	interrupted  struct{ wrapper }
-	interruptedf struct{ _error }
+	interrupted  struct{ *withStack }
+	interruptedf struct{ *fundamental }
 )
 
 // NewInterrupted returns an error which wraps err that satisfies
@@ -744,12 +744,12 @@ func NewInterrupted(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &interrupted{errWrapf(err, msg, args...)}
+	return interrupted{errWrapf(err, msg, args...)}
 }
 
 // NewInterruptedf returns a formatted error that satisfies IsInterrupted().
 func NewInterruptedf(format string, args ...interface{}) error {
-	return &interruptedf{errNewf(format, args...)}
+	return interruptedf{errNewf(format, args...)}
 }
 
 func isInterrupted(err error) (ok bool) {
@@ -757,9 +757,9 @@ func isInterrupted(err error) (ok bool) {
 		Interrupted() bool
 	}
 	switch et := err.(type) {
-	case *interrupted:
+	case interrupted:
 		ok = true
-	case *interruptedf:
+	case interruptedf:
 		ok = true
 	case iFace:
 		ok = et.Interrupted()
@@ -777,8 +777,8 @@ func IsInterrupted(err error) bool {
 }
 
 type (
-	locked  struct{ wrapper }
-	lockedf struct{ _error }
+	locked  struct{ *withStack }
+	lockedf struct{ *fundamental }
 )
 
 // NewLocked returns an error which wraps err that satisfies
@@ -787,12 +787,12 @@ func NewLocked(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &locked{errWrapf(err, msg, args...)}
+	return locked{errWrapf(err, msg, args...)}
 }
 
 // NewLockedf returns a formatted error that satisfies IsLocked().
 func NewLockedf(format string, args ...interface{}) error {
-	return &lockedf{errNewf(format, args...)}
+	return lockedf{errNewf(format, args...)}
 }
 
 func isLocked(err error) (ok bool) {
@@ -800,9 +800,9 @@ func isLocked(err error) (ok bool) {
 		Locked() bool
 	}
 	switch et := err.(type) {
-	case *locked:
+	case locked:
 		ok = true
-	case *lockedf:
+	case lockedf:
 		ok = true
 	case iFace:
 		ok = et.Locked()
@@ -820,8 +820,8 @@ func IsLocked(err error) bool {
 }
 
 type (
-	mismatch  struct{ wrapper }
-	mismatchf struct{ _error }
+	mismatch  struct{ *withStack }
+	mismatchf struct{ *fundamental }
 )
 
 // NewMismatch returns an error which wraps err that satisfies
@@ -830,12 +830,12 @@ func NewMismatch(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &mismatch{errWrapf(err, msg, args...)}
+	return mismatch{errWrapf(err, msg, args...)}
 }
 
 // NewMismatchf returns a formatted error that satisfies IsMismatch().
 func NewMismatchf(format string, args ...interface{}) error {
-	return &mismatchf{errNewf(format, args...)}
+	return mismatchf{errNewf(format, args...)}
 }
 
 func isMismatch(err error) (ok bool) {
@@ -843,9 +843,9 @@ func isMismatch(err error) (ok bool) {
 		Mismatch() bool
 	}
 	switch et := err.(type) {
-	case *mismatch:
+	case mismatch:
 		ok = true
-	case *mismatchf:
+	case mismatchf:
 		ok = true
 	case iFace:
 		ok = et.Mismatch()
@@ -863,8 +863,8 @@ func IsMismatch(err error) bool {
 }
 
 type (
-	notAcceptable  struct{ wrapper }
-	notAcceptablef struct{ _error }
+	notAcceptable  struct{ *withStack }
+	notAcceptablef struct{ *fundamental }
 )
 
 // NewNotAcceptable returns an error which wraps err that satisfies
@@ -873,12 +873,12 @@ func NewNotAcceptable(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &notAcceptable{errWrapf(err, msg, args...)}
+	return notAcceptable{errWrapf(err, msg, args...)}
 }
 
 // NewNotAcceptablef returns a formatted error that satisfies IsNotAcceptable().
 func NewNotAcceptablef(format string, args ...interface{}) error {
-	return &notAcceptablef{errNewf(format, args...)}
+	return notAcceptablef{errNewf(format, args...)}
 }
 
 func isNotAcceptable(err error) (ok bool) {
@@ -886,9 +886,9 @@ func isNotAcceptable(err error) (ok bool) {
 		NotAcceptable() bool
 	}
 	switch et := err.(type) {
-	case *notAcceptable:
+	case notAcceptable:
 		ok = true
-	case *notAcceptablef:
+	case notAcceptablef:
 		ok = true
 	case iFace:
 		ok = et.NotAcceptable()
@@ -906,8 +906,8 @@ func IsNotAcceptable(err error) bool {
 }
 
 type (
-	notAllowed  struct{ wrapper }
-	notAllowedf struct{ _error }
+	notAllowed  struct{ *withStack }
+	notAllowedf struct{ *fundamental }
 )
 
 // NewNotAllowed returns an error which wraps err that satisfies
@@ -916,12 +916,12 @@ func NewNotAllowed(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &notAllowed{errWrapf(err, msg, args...)}
+	return notAllowed{errWrapf(err, msg, args...)}
 }
 
 // NewNotAllowedf returns a formatted error that satisfies IsNotAllowed().
 func NewNotAllowedf(format string, args ...interface{}) error {
-	return &notAllowedf{errNewf(format, args...)}
+	return notAllowedf{errNewf(format, args...)}
 }
 
 func isNotAllowed(err error) (ok bool) {
@@ -929,9 +929,9 @@ func isNotAllowed(err error) (ok bool) {
 		NotAllowed() bool
 	}
 	switch et := err.(type) {
-	case *notAllowed:
+	case notAllowed:
 		ok = true
-	case *notAllowedf:
+	case notAllowedf:
 		ok = true
 	case iFace:
 		ok = et.NotAllowed()
@@ -949,8 +949,8 @@ func IsNotAllowed(err error) bool {
 }
 
 type (
-	notFound  struct{ wrapper }
-	notFoundf struct{ _error }
+	notFound  struct{ *withStack }
+	notFoundf struct{ *fundamental }
 )
 
 // NewNotFound returns an error which wraps err that satisfies
@@ -959,12 +959,12 @@ func NewNotFound(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &notFound{errWrapf(err, msg, args...)}
+	return notFound{errWrapf(err, msg, args...)}
 }
 
 // NewNotFoundf returns a formatted error that satisfies IsNotFound().
 func NewNotFoundf(format string, args ...interface{}) error {
-	return &notFoundf{errNewf(format, args...)}
+	return notFoundf{errNewf(format, args...)}
 }
 
 func isNotFound(err error) (ok bool) {
@@ -972,9 +972,9 @@ func isNotFound(err error) (ok bool) {
 		NotFound() bool
 	}
 	switch et := err.(type) {
-	case *notFound:
+	case notFound:
 		ok = true
-	case *notFoundf:
+	case notFoundf:
 		ok = true
 	case iFace:
 		ok = et.NotFound()
@@ -992,8 +992,8 @@ func IsNotFound(err error) bool {
 }
 
 type (
-	notImplemented  struct{ wrapper }
-	notImplementedf struct{ _error }
+	notImplemented  struct{ *withStack }
+	notImplementedf struct{ *fundamental }
 )
 
 // NewNotImplemented returns an error which wraps err that satisfies
@@ -1002,12 +1002,12 @@ func NewNotImplemented(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &notImplemented{errWrapf(err, msg, args...)}
+	return notImplemented{errWrapf(err, msg, args...)}
 }
 
 // NewNotImplementedf returns a formatted error that satisfies IsNotImplemented().
 func NewNotImplementedf(format string, args ...interface{}) error {
-	return &notImplementedf{errNewf(format, args...)}
+	return notImplementedf{errNewf(format, args...)}
 }
 
 func isNotImplemented(err error) (ok bool) {
@@ -1015,9 +1015,9 @@ func isNotImplemented(err error) (ok bool) {
 		NotImplemented() bool
 	}
 	switch et := err.(type) {
-	case *notImplemented:
+	case notImplemented:
 		ok = true
-	case *notImplementedf:
+	case notImplementedf:
 		ok = true
 	case iFace:
 		ok = et.NotImplemented()
@@ -1035,8 +1035,8 @@ func IsNotImplemented(err error) bool {
 }
 
 type (
-	notRecoverable  struct{ wrapper }
-	notRecoverablef struct{ _error }
+	notRecoverable  struct{ *withStack }
+	notRecoverablef struct{ *fundamental }
 )
 
 // NewNotRecoverable returns an error which wraps err that satisfies
@@ -1045,12 +1045,12 @@ func NewNotRecoverable(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &notRecoverable{errWrapf(err, msg, args...)}
+	return notRecoverable{errWrapf(err, msg, args...)}
 }
 
 // NewNotRecoverablef returns a formatted error that satisfies IsNotRecoverable().
 func NewNotRecoverablef(format string, args ...interface{}) error {
-	return &notRecoverablef{errNewf(format, args...)}
+	return notRecoverablef{errNewf(format, args...)}
 }
 
 func isNotRecoverable(err error) (ok bool) {
@@ -1058,9 +1058,9 @@ func isNotRecoverable(err error) (ok bool) {
 		NotRecoverable() bool
 	}
 	switch et := err.(type) {
-	case *notRecoverable:
+	case notRecoverable:
 		ok = true
-	case *notRecoverablef:
+	case notRecoverablef:
 		ok = true
 	case iFace:
 		ok = et.NotRecoverable()
@@ -1078,8 +1078,8 @@ func IsNotRecoverable(err error) bool {
 }
 
 type (
-	notSupported  struct{ wrapper }
-	notSupportedf struct{ _error }
+	notSupported  struct{ *withStack }
+	notSupportedf struct{ *fundamental }
 )
 
 // NewNotSupported returns an error which wraps err that satisfies
@@ -1088,12 +1088,12 @@ func NewNotSupported(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &notSupported{errWrapf(err, msg, args...)}
+	return notSupported{errWrapf(err, msg, args...)}
 }
 
 // NewNotSupportedf returns a formatted error that satisfies IsNotSupported().
 func NewNotSupportedf(format string, args ...interface{}) error {
-	return &notSupportedf{errNewf(format, args...)}
+	return notSupportedf{errNewf(format, args...)}
 }
 
 func isNotSupported(err error) (ok bool) {
@@ -1101,9 +1101,9 @@ func isNotSupported(err error) (ok bool) {
 		NotSupported() bool
 	}
 	switch et := err.(type) {
-	case *notSupported:
+	case notSupported:
 		ok = true
-	case *notSupportedf:
+	case notSupportedf:
 		ok = true
 	case iFace:
 		ok = et.NotSupported()
@@ -1121,8 +1121,8 @@ func IsNotSupported(err error) bool {
 }
 
 type (
-	notValid  struct{ wrapper }
-	notValidf struct{ _error }
+	notValid  struct{ *withStack }
+	notValidf struct{ *fundamental }
 )
 
 // NewNotValid returns an error which wraps err that satisfies
@@ -1131,12 +1131,12 @@ func NewNotValid(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &notValid{errWrapf(err, msg, args...)}
+	return notValid{errWrapf(err, msg, args...)}
 }
 
 // NewNotValidf returns a formatted error that satisfies IsNotValid().
 func NewNotValidf(format string, args ...interface{}) error {
-	return &notValidf{errNewf(format, args...)}
+	return notValidf{errNewf(format, args...)}
 }
 
 func isNotValid(err error) (ok bool) {
@@ -1144,9 +1144,9 @@ func isNotValid(err error) (ok bool) {
 		NotValid() bool
 	}
 	switch et := err.(type) {
-	case *notValid:
+	case notValid:
 		ok = true
-	case *notValidf:
+	case notValidf:
 		ok = true
 	case iFace:
 		ok = et.NotValid()
@@ -1164,8 +1164,8 @@ func IsNotValid(err error) bool {
 }
 
 type (
-	permissionDenied  struct{ wrapper }
-	permissionDeniedf struct{ _error }
+	permissionDenied  struct{ *withStack }
+	permissionDeniedf struct{ *fundamental }
 )
 
 // NewPermissionDenied returns an error which wraps err that satisfies
@@ -1174,12 +1174,12 @@ func NewPermissionDenied(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &permissionDenied{errWrapf(err, msg, args...)}
+	return permissionDenied{errWrapf(err, msg, args...)}
 }
 
 // NewPermissionDeniedf returns a formatted error that satisfies IsPermissionDenied().
 func NewPermissionDeniedf(format string, args ...interface{}) error {
-	return &permissionDeniedf{errNewf(format, args...)}
+	return permissionDeniedf{errNewf(format, args...)}
 }
 
 func isPermissionDenied(err error) (ok bool) {
@@ -1187,9 +1187,9 @@ func isPermissionDenied(err error) (ok bool) {
 		PermissionDenied() bool
 	}
 	switch et := err.(type) {
-	case *permissionDenied:
+	case permissionDenied:
 		ok = true
-	case *permissionDeniedf:
+	case permissionDeniedf:
 		ok = true
 	case iFace:
 		ok = et.PermissionDenied()
@@ -1207,8 +1207,8 @@ func IsPermissionDenied(err error) bool {
 }
 
 type (
-	quotaExceeded  struct{ wrapper }
-	quotaExceededf struct{ _error }
+	quotaExceeded  struct{ *withStack }
+	quotaExceededf struct{ *fundamental }
 )
 
 // NewQuotaExceeded returns an error which wraps err that satisfies
@@ -1217,12 +1217,12 @@ func NewQuotaExceeded(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &quotaExceeded{errWrapf(err, msg, args...)}
+	return quotaExceeded{errWrapf(err, msg, args...)}
 }
 
 // NewQuotaExceededf returns a formatted error that satisfies IsQuotaExceeded().
 func NewQuotaExceededf(format string, args ...interface{}) error {
-	return &quotaExceededf{errNewf(format, args...)}
+	return quotaExceededf{errNewf(format, args...)}
 }
 
 func isQuotaExceeded(err error) (ok bool) {
@@ -1230,9 +1230,9 @@ func isQuotaExceeded(err error) (ok bool) {
 		QuotaExceeded() bool
 	}
 	switch et := err.(type) {
-	case *quotaExceeded:
+	case quotaExceeded:
 		ok = true
-	case *quotaExceededf:
+	case quotaExceededf:
 		ok = true
 	case iFace:
 		ok = et.QuotaExceeded()
@@ -1250,8 +1250,8 @@ func IsQuotaExceeded(err error) bool {
 }
 
 type (
-	readFailed  struct{ wrapper }
-	readFailedf struct{ _error }
+	readFailed  struct{ *withStack }
+	readFailedf struct{ *fundamental }
 )
 
 // NewReadFailed returns an error which wraps err that satisfies
@@ -1260,12 +1260,12 @@ func NewReadFailed(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &readFailed{errWrapf(err, msg, args...)}
+	return readFailed{errWrapf(err, msg, args...)}
 }
 
 // NewReadFailedf returns a formatted error that satisfies IsReadFailed().
 func NewReadFailedf(format string, args ...interface{}) error {
-	return &readFailedf{errNewf(format, args...)}
+	return readFailedf{errNewf(format, args...)}
 }
 
 func isReadFailed(err error) (ok bool) {
@@ -1273,9 +1273,9 @@ func isReadFailed(err error) (ok bool) {
 		ReadFailed() bool
 	}
 	switch et := err.(type) {
-	case *readFailed:
+	case readFailed:
 		ok = true
-	case *readFailedf:
+	case readFailedf:
 		ok = true
 	case iFace:
 		ok = et.ReadFailed()
@@ -1293,8 +1293,8 @@ func IsReadFailed(err error) bool {
 }
 
 type (
-	rejected  struct{ wrapper }
-	rejectedf struct{ _error }
+	rejected  struct{ *withStack }
+	rejectedf struct{ *fundamental }
 )
 
 // NewRejected returns an error which wraps err that satisfies
@@ -1303,12 +1303,12 @@ func NewRejected(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &rejected{errWrapf(err, msg, args...)}
+	return rejected{errWrapf(err, msg, args...)}
 }
 
 // NewRejectedf returns a formatted error that satisfies IsRejected().
 func NewRejectedf(format string, args ...interface{}) error {
-	return &rejectedf{errNewf(format, args...)}
+	return rejectedf{errNewf(format, args...)}
 }
 
 func isRejected(err error) (ok bool) {
@@ -1316,9 +1316,9 @@ func isRejected(err error) (ok bool) {
 		Rejected() bool
 	}
 	switch et := err.(type) {
-	case *rejected:
+	case rejected:
 		ok = true
-	case *rejectedf:
+	case rejectedf:
 		ok = true
 	case iFace:
 		ok = et.Rejected()
@@ -1336,8 +1336,8 @@ func IsRejected(err error) bool {
 }
 
 type (
-	required  struct{ wrapper }
-	requiredf struct{ _error }
+	required  struct{ *withStack }
+	requiredf struct{ *fundamental }
 )
 
 // NewRequired returns an error which wraps err that satisfies
@@ -1346,12 +1346,12 @@ func NewRequired(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &required{errWrapf(err, msg, args...)}
+	return required{errWrapf(err, msg, args...)}
 }
 
 // NewRequiredf returns a formatted error that satisfies IsRequired().
 func NewRequiredf(format string, args ...interface{}) error {
-	return &requiredf{errNewf(format, args...)}
+	return requiredf{errNewf(format, args...)}
 }
 
 func isRequired(err error) (ok bool) {
@@ -1359,9 +1359,9 @@ func isRequired(err error) (ok bool) {
 		Required() bool
 	}
 	switch et := err.(type) {
-	case *required:
+	case required:
 		ok = true
-	case *requiredf:
+	case requiredf:
 		ok = true
 	case iFace:
 		ok = et.Required()
@@ -1379,8 +1379,8 @@ func IsRequired(err error) bool {
 }
 
 type (
-	restricted  struct{ wrapper }
-	restrictedf struct{ _error }
+	restricted  struct{ *withStack }
+	restrictedf struct{ *fundamental }
 )
 
 // NewRestricted returns an error which wraps err that satisfies
@@ -1389,12 +1389,12 @@ func NewRestricted(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &restricted{errWrapf(err, msg, args...)}
+	return restricted{errWrapf(err, msg, args...)}
 }
 
 // NewRestrictedf returns a formatted error that satisfies IsRestricted().
 func NewRestrictedf(format string, args ...interface{}) error {
-	return &restrictedf{errNewf(format, args...)}
+	return restrictedf{errNewf(format, args...)}
 }
 
 func isRestricted(err error) (ok bool) {
@@ -1402,9 +1402,9 @@ func isRestricted(err error) (ok bool) {
 		Restricted() bool
 	}
 	switch et := err.(type) {
-	case *restricted:
+	case restricted:
 		ok = true
-	case *restrictedf:
+	case restrictedf:
 		ok = true
 	case iFace:
 		ok = et.Restricted()
@@ -1422,8 +1422,8 @@ func IsRestricted(err error) bool {
 }
 
 type (
-	revoked  struct{ wrapper }
-	revokedf struct{ _error }
+	revoked  struct{ *withStack }
+	revokedf struct{ *fundamental }
 )
 
 // NewRevoked returns an error which wraps err that satisfies
@@ -1432,12 +1432,12 @@ func NewRevoked(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &revoked{errWrapf(err, msg, args...)}
+	return revoked{errWrapf(err, msg, args...)}
 }
 
 // NewRevokedf returns a formatted error that satisfies IsRevoked().
 func NewRevokedf(format string, args ...interface{}) error {
-	return &revokedf{errNewf(format, args...)}
+	return revokedf{errNewf(format, args...)}
 }
 
 func isRevoked(err error) (ok bool) {
@@ -1445,9 +1445,9 @@ func isRevoked(err error) (ok bool) {
 		Revoked() bool
 	}
 	switch et := err.(type) {
-	case *revoked:
+	case revoked:
 		ok = true
-	case *revokedf:
+	case revokedf:
 		ok = true
 	case iFace:
 		ok = et.Revoked()
@@ -1465,8 +1465,8 @@ func IsRevoked(err error) bool {
 }
 
 type (
-	temporary  struct{ wrapper }
-	temporaryf struct{ _error }
+	temporary  struct{ *withStack }
+	temporaryf struct{ *fundamental }
 )
 
 // NewTemporary returns an error which wraps err that satisfies
@@ -1475,12 +1475,12 @@ func NewTemporary(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &temporary{errWrapf(err, msg, args...)}
+	return temporary{errWrapf(err, msg, args...)}
 }
 
 // NewTemporaryf returns a formatted error that satisfies IsTemporary().
 func NewTemporaryf(format string, args ...interface{}) error {
-	return &temporaryf{errNewf(format, args...)}
+	return temporaryf{errNewf(format, args...)}
 }
 
 func isTemporary(err error) (ok bool) {
@@ -1488,9 +1488,9 @@ func isTemporary(err error) (ok bool) {
 		Temporary() bool
 	}
 	switch et := err.(type) {
-	case *temporary:
+	case temporary:
 		ok = true
-	case *temporaryf:
+	case temporaryf:
 		ok = true
 	case iFace:
 		ok = et.Temporary()
@@ -1508,8 +1508,8 @@ func IsTemporary(err error) bool {
 }
 
 type (
-	terminated  struct{ wrapper }
-	terminatedf struct{ _error }
+	terminated  struct{ *withStack }
+	terminatedf struct{ *fundamental }
 )
 
 // NewTerminated returns an error which wraps err that satisfies
@@ -1518,12 +1518,12 @@ func NewTerminated(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &terminated{errWrapf(err, msg, args...)}
+	return terminated{errWrapf(err, msg, args...)}
 }
 
 // NewTerminatedf returns a formatted error that satisfies IsTerminated().
 func NewTerminatedf(format string, args ...interface{}) error {
-	return &terminatedf{errNewf(format, args...)}
+	return terminatedf{errNewf(format, args...)}
 }
 
 func isTerminated(err error) (ok bool) {
@@ -1531,9 +1531,9 @@ func isTerminated(err error) (ok bool) {
 		Terminated() bool
 	}
 	switch et := err.(type) {
-	case *terminated:
+	case terminated:
 		ok = true
-	case *terminatedf:
+	case terminatedf:
 		ok = true
 	case iFace:
 		ok = et.Terminated()
@@ -1551,8 +1551,8 @@ func IsTerminated(err error) bool {
 }
 
 type (
-	timeout  struct{ wrapper }
-	timeoutf struct{ _error }
+	timeout  struct{ *withStack }
+	timeoutf struct{ *fundamental }
 )
 
 // NewTimeout returns an error which wraps err that satisfies
@@ -1561,12 +1561,12 @@ func NewTimeout(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &timeout{errWrapf(err, msg, args...)}
+	return timeout{errWrapf(err, msg, args...)}
 }
 
 // NewTimeoutf returns a formatted error that satisfies IsTimeout().
 func NewTimeoutf(format string, args ...interface{}) error {
-	return &timeoutf{errNewf(format, args...)}
+	return timeoutf{errNewf(format, args...)}
 }
 
 func isTimeout(err error) (ok bool) {
@@ -1574,9 +1574,9 @@ func isTimeout(err error) (ok bool) {
 		Timeout() bool
 	}
 	switch et := err.(type) {
-	case *timeout:
+	case timeout:
 		ok = true
-	case *timeoutf:
+	case timeoutf:
 		ok = true
 	case iFace:
 		ok = et.Timeout()
@@ -1594,8 +1594,8 @@ func IsTimeout(err error) bool {
 }
 
 type (
-	tooLarge  struct{ wrapper }
-	tooLargef struct{ _error }
+	tooLarge  struct{ *withStack }
+	tooLargef struct{ *fundamental }
 )
 
 // NewTooLarge returns an error which wraps err that satisfies
@@ -1604,12 +1604,12 @@ func NewTooLarge(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &tooLarge{errWrapf(err, msg, args...)}
+	return tooLarge{errWrapf(err, msg, args...)}
 }
 
 // NewTooLargef returns a formatted error that satisfies IsTooLarge().
 func NewTooLargef(format string, args ...interface{}) error {
-	return &tooLargef{errNewf(format, args...)}
+	return tooLargef{errNewf(format, args...)}
 }
 
 func isTooLarge(err error) (ok bool) {
@@ -1617,9 +1617,9 @@ func isTooLarge(err error) (ok bool) {
 		TooLarge() bool
 	}
 	switch et := err.(type) {
-	case *tooLarge:
+	case tooLarge:
 		ok = true
-	case *tooLargef:
+	case tooLargef:
 		ok = true
 	case iFace:
 		ok = et.TooLarge()
@@ -1637,8 +1637,8 @@ func IsTooLarge(err error) bool {
 }
 
 type (
-	unauthorized  struct{ wrapper }
-	unauthorizedf struct{ _error }
+	unauthorized  struct{ *withStack }
+	unauthorizedf struct{ *fundamental }
 )
 
 // NewUnauthorized returns an error which wraps err that satisfies
@@ -1647,12 +1647,12 @@ func NewUnauthorized(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &unauthorized{errWrapf(err, msg, args...)}
+	return unauthorized{errWrapf(err, msg, args...)}
 }
 
 // NewUnauthorizedf returns a formatted error that satisfies IsUnauthorized().
 func NewUnauthorizedf(format string, args ...interface{}) error {
-	return &unauthorizedf{errNewf(format, args...)}
+	return unauthorizedf{errNewf(format, args...)}
 }
 
 func isUnauthorized(err error) (ok bool) {
@@ -1660,9 +1660,9 @@ func isUnauthorized(err error) (ok bool) {
 		Unauthorized() bool
 	}
 	switch et := err.(type) {
-	case *unauthorized:
+	case unauthorized:
 		ok = true
-	case *unauthorizedf:
+	case unauthorizedf:
 		ok = true
 	case iFace:
 		ok = et.Unauthorized()
@@ -1680,8 +1680,8 @@ func IsUnauthorized(err error) bool {
 }
 
 type (
-	unavailable  struct{ wrapper }
-	unavailablef struct{ _error }
+	unavailable  struct{ *withStack }
+	unavailablef struct{ *fundamental }
 )
 
 // NewUnavailable returns an error which wraps err that satisfies
@@ -1690,12 +1690,12 @@ func NewUnavailable(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &unavailable{errWrapf(err, msg, args...)}
+	return unavailable{errWrapf(err, msg, args...)}
 }
 
 // NewUnavailablef returns a formatted error that satisfies IsUnavailable().
 func NewUnavailablef(format string, args ...interface{}) error {
-	return &unavailablef{errNewf(format, args...)}
+	return unavailablef{errNewf(format, args...)}
 }
 
 func isUnavailable(err error) (ok bool) {
@@ -1703,9 +1703,9 @@ func isUnavailable(err error) (ok bool) {
 		Unavailable() bool
 	}
 	switch et := err.(type) {
-	case *unavailable:
+	case unavailable:
 		ok = true
-	case *unavailablef:
+	case unavailablef:
 		ok = true
 	case iFace:
 		ok = et.Unavailable()
@@ -1723,8 +1723,8 @@ func IsUnavailable(err error) bool {
 }
 
 type (
-	userNotFound  struct{ wrapper }
-	userNotFoundf struct{ _error }
+	userNotFound  struct{ *withStack }
+	userNotFoundf struct{ *fundamental }
 )
 
 // NewUserNotFound returns an error which wraps err that satisfies
@@ -1733,12 +1733,12 @@ func NewUserNotFound(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &userNotFound{errWrapf(err, msg, args...)}
+	return userNotFound{errWrapf(err, msg, args...)}
 }
 
 // NewUserNotFoundf returns a formatted error that satisfies IsUserNotFound().
 func NewUserNotFoundf(format string, args ...interface{}) error {
-	return &userNotFoundf{errNewf(format, args...)}
+	return userNotFoundf{errNewf(format, args...)}
 }
 
 func isUserNotFound(err error) (ok bool) {
@@ -1746,9 +1746,9 @@ func isUserNotFound(err error) (ok bool) {
 		UserNotFound() bool
 	}
 	switch et := err.(type) {
-	case *userNotFound:
+	case userNotFound:
 		ok = true
-	case *userNotFoundf:
+	case userNotFoundf:
 		ok = true
 	case iFace:
 		ok = et.UserNotFound()
@@ -1766,8 +1766,8 @@ func IsUserNotFound(err error) bool {
 }
 
 type (
-	verificationFailed  struct{ wrapper }
-	verificationFailedf struct{ _error }
+	verificationFailed  struct{ *withStack }
+	verificationFailedf struct{ *fundamental }
 )
 
 // NewVerificationFailed returns an error which wraps err that satisfies
@@ -1776,12 +1776,12 @@ func NewVerificationFailed(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &verificationFailed{errWrapf(err, msg, args...)}
+	return verificationFailed{errWrapf(err, msg, args...)}
 }
 
 // NewVerificationFailedf returns a formatted error that satisfies IsVerificationFailed().
 func NewVerificationFailedf(format string, args ...interface{}) error {
-	return &verificationFailedf{errNewf(format, args...)}
+	return verificationFailedf{errNewf(format, args...)}
 }
 
 func isVerificationFailed(err error) (ok bool) {
@@ -1789,9 +1789,9 @@ func isVerificationFailed(err error) (ok bool) {
 		VerificationFailed() bool
 	}
 	switch et := err.(type) {
-	case *verificationFailed:
+	case verificationFailed:
 		ok = true
-	case *verificationFailedf:
+	case verificationFailedf:
 		ok = true
 	case iFace:
 		ok = et.VerificationFailed()
@@ -1809,8 +1809,8 @@ func IsVerificationFailed(err error) bool {
 }
 
 type (
-	writeFailed  struct{ wrapper }
-	writeFailedf struct{ _error }
+	writeFailed  struct{ *withStack }
+	writeFailedf struct{ *fundamental }
 )
 
 // NewWriteFailed returns an error which wraps err that satisfies
@@ -1819,12 +1819,12 @@ func NewWriteFailed(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &writeFailed{errWrapf(err, msg, args...)}
+	return writeFailed{errWrapf(err, msg, args...)}
 }
 
 // NewWriteFailedf returns a formatted error that satisfies IsWriteFailed().
 func NewWriteFailedf(format string, args ...interface{}) error {
-	return &writeFailedf{errNewf(format, args...)}
+	return writeFailedf{errNewf(format, args...)}
 }
 
 func isWriteFailed(err error) (ok bool) {
@@ -1832,9 +1832,9 @@ func isWriteFailed(err error) (ok bool) {
 		WriteFailed() bool
 	}
 	switch et := err.(type) {
-	case *writeFailed:
+	case writeFailed:
 		ok = true
-	case *writeFailedf:
+	case writeFailedf:
 		ok = true
 	case iFace:
 		ok = et.WriteFailed()
@@ -1852,8 +1852,8 @@ func IsWriteFailed(err error) bool {
 }
 
 type (
-	wrongVersion  struct{ wrapper }
-	wrongVersionf struct{ _error }
+	wrongVersion  struct{ *withStack }
+	wrongVersionf struct{ *fundamental }
 )
 
 // NewWrongVersion returns an error which wraps err that satisfies
@@ -1862,12 +1862,12 @@ func NewWrongVersion(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
 	}
-	return &wrongVersion{errWrapf(err, msg, args...)}
+	return wrongVersion{errWrapf(err, msg, args...)}
 }
 
 // NewWrongVersionf returns a formatted error that satisfies IsWrongVersion().
 func NewWrongVersionf(format string, args ...interface{}) error {
-	return &wrongVersionf{errNewf(format, args...)}
+	return wrongVersionf{errNewf(format, args...)}
 }
 
 func isWrongVersion(err error) (ok bool) {
@@ -1875,9 +1875,9 @@ func isWrongVersion(err error) (ok bool) {
 		WrongVersion() bool
 	}
 	switch et := err.(type) {
-	case *wrongVersion:
+	case wrongVersion:
 		ok = true
-	case *wrongVersionf:
+	case wrongVersionf:
 		ok = true
 	case iFace:
 		ok = et.WrongVersion()

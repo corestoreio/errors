@@ -21,12 +21,17 @@
 // Adding context to an error
 //
 // The errors.Wrap function returns a new error that adds context to the
-// original error. For example
+// original error by recording a stack trace at the point Wrap is called,
+// and the supplied message. For example
 //
 //     _, err := ioutil.ReadAll(r)
 //     if err != nil {
 //             return errors.Wrap(err, "read failed")
 //     }
+//
+// If additional control is required the errors.WithStack and errors.WithMessage
+// functions destructure errors.Wrap into its component operations of annotating
+// an error with a stack trace and an a message, respectively.
 //
 // Retrieving the cause of an error
 //
@@ -35,7 +40,7 @@
 // to reverse the operation of errors.Wrap to retrieve the original error
 // for inspection. Any error value which implements this interface
 //
-//     type Causer interface {
+//     type causer interface {
 //             Cause() error
 //     }
 //
@@ -49,6 +54,9 @@
 //     default:
 //             // unknown error
 //     }
+//
+// causer interface is not exported by this package, but is considered a part
+// of stable public API.
 //
 // Formatted printing of errors
 //
@@ -66,7 +74,7 @@
 // New, Errorf, Wrap, and Wrapf record a stack trace at the point they are
 // invoked. This information can be retrieved with the following interface.
 //
-//     type stacktracer interface {
+//     type stackTracer interface {
 //             StackTrace() errors.StackTrace
 //     }
 //
@@ -74,15 +82,18 @@
 //
 //     type StackTrace []Frame
 //
-// The Frame type represents a call site in the stacktrace. Frame supports
+// The Frame type represents a call site in the stack trace. Frame supports
 // the fmt.Formatter interface that can be used for printing information about
-// the stacktrace of this error. For example:
+// the stack trace of this error. For example:
 //
-//     if err, ok := err.(stacktracer); ok {
+//     if err, ok := err.(stackTracer); ok {
 //             for _, f := range err.StackTrace() {
 //                     fmt.Printf("%+s:%d", f)
 //             }
 //     }
+//
+// stackTracer interface is not exported by this package, but is considered a part
+// of stable public API.
 //
 // See the documentation for Frame.Format for more details.
 package errors

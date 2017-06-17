@@ -46,19 +46,19 @@ func TestCausedBehaviour(t *testing.T) {
 }
 
 func TestError_Error(t *testing.T) {
-	t.Parallel()
+
 	const e1 Error = "e1"
 	assert.EqualError(t, e1, "e1")
 }
 
 func TestWrapf2(t *testing.T) {
-	t.Parallel()
+
 	var e = Wrapf(nil, "Error %d")
 	assert.Nil(t, e)
 }
 
 func TestErrorContainsAny(t *testing.T) {
-	t.Parallel()
+
 	tests := []struct {
 		me   error
 		vf   []BehaviourFunc
@@ -84,18 +84,18 @@ func TestErrorContainsAny(t *testing.T) {
 }
 
 func TestErrWrapf(t *testing.T) {
-	t.Parallel()
+
 	const e Error = "Error1"
-	if haveEB, want := errWrapf(e, "Hello World %#v"), "Hello World %#v"; haveEB.msg != want {
-		t.Errorf("have %q want %q", haveEB.msg, want)
+	if haveEB, want := errWrapf(e, "Hello World %#v"), "Hello World %#v"; haveEB.error.(*withMessage).msg != want {
+		t.Errorf("have %q want %q", haveEB.error.(*withMessage).msg, want)
 	}
-	if haveEB, want := errWrapf(e, "Hello World %d", 123), "Hello World 123"; haveEB.msg != want {
-		t.Errorf("have %q want %q", haveEB.msg, want)
+	if haveEB, want := errWrapf(e, "Hello World %d", 123), "Hello World 123"; haveEB.error.(*withMessage).msg != want {
+		t.Errorf("have %q want %q", haveEB.error.(*withMessage).msg, want)
 	}
 }
 
 func TestErrNewf(t *testing.T) {
-	t.Parallel()
+
 	if have, want := errNewf("Hello World %d", 633), "Hello World 633"; have.msg != want {
 		t.Errorf("have %q want %q", have.msg, want)
 	}

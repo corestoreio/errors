@@ -20,27 +20,33 @@ import "fmt"
 // if an error has a specific behaviour attached.
 type BehaviourFunc func(error) bool
 
-func errWrapf(err error, format string, args ...interface{}) wrapper {
-	ret := wrapper{
-		cause: cause{
+func fmtNoSprintf(format string, _ ...interface{}) string {
+	return format
+}
+
+func errWrapf(err error, format string, args ...interface{}) *withStack {
+	sprintf := fmtNoSprintf
+	if len(args) > 0 {
+		sprintf = fmt.Sprintf
+	}
+	return &withStack{
+		error: &withMessage{
 			cause: err,
-			msg:   format,
+			msg:   sprintf(format, args...),
 		},
 		stack: callers(),
 	}
-	if len(args) > 0 {
-		ret.cause.msg = fmt.Sprintf(format, args...)
-	}
-	return ret
 }
 
-func errNewf(format string, args ...interface{}) (ret _error) {
-	ret.msg = format
-	ret.stack = callers()
+func errNewf(format string, args ...interface{}) *fundamental {
+	sprintf := fmtNoSprintf
 	if len(args) > 0 {
-		ret.msg = fmt.Sprintf(format, args...)
+		sprintf = fmt.Sprintf
 	}
-	return
+	return &fundamental{
+		msg:   sprintf(format, args...),
+		stack: callers(),
+	}
 }
 
 // HasBehaviour checks if err contains at least one of the provided behaviour
