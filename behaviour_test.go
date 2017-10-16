@@ -36,6 +36,35 @@ func TestBehaviourAborted(t *testing.T) {
 	}
 }
 
+func (nf testBehave) AlreadyCaptured() bool {
+	return nf.ret
+}
+
+func TestBehaviourAlreadyCaptured(t *testing.T) {
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsAlreadyCaptured, false},
+		{NewAlreadyCaptured(nil, "Error2"), IsAlreadyCaptured, false},
+		{NewAlreadyCaptured(Error("Error3a"), "Error3"), IsAlreadyCaptured, true},
+		{Wrap(NewAlreadyCapturedf("Err4"), "Wrap4"), IsAlreadyCaptured, true},
+		{NewNotImplemented(Wrap(NewAlreadyCapturedf("Err5"), "Wrap5"), "NotImplemend5"), IsAlreadyCaptured, true},
+		{Wrap(NewAlreadyCaptured(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "AlreadyCaptured6"), "Wrap6a"), IsAlreadyCaptured, true},
+		{Wrap(NewAlreadyCaptured(errors.New("I'm the cause7"), "AlreadyCaptured7"), "Wrap7"), IsAlreadyCaptured, true},
+		{NewAlreadyCapturedf("Error8"), IsAlreadyCaptured, true},
+		{nil, IsAlreadyCaptured, false},
+		{testBehave{}, IsAlreadyCaptured, false},
+		{testBehave{ret: true}, IsAlreadyCaptured, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
 func (nf testBehave) AlreadyClosed() bool {
 	return nf.ret
 }
@@ -115,35 +144,6 @@ func TestBehaviourAlreadyInUse(t *testing.T) {
 		{nil, IsAlreadyInUse, false},
 		{testBehave{}, IsAlreadyInUse, false},
 		{testBehave{ret: true}, IsAlreadyInUse, true},
-	}
-	for i, test := range tests {
-		if want, have := test.want, test.is(test.err); want != have {
-			t.Errorf("Index %d: Want %t Have %t", i, want, have)
-		}
-	}
-}
-
-func (nf testBehave) AlreadyCaptured() bool {
-	return nf.ret
-}
-
-func TestBehaviourAlreadyCaptured(t *testing.T) {
-	tests := []struct {
-		err  error
-		is   BehaviourFunc
-		want bool
-	}{
-		{errors.New("Error1"), IsAlreadyCaptured, false},
-		{NewAlreadyCaptured(nil, "Error2"), IsAlreadyCaptured, false},
-		{NewAlreadyCaptured(Error("Error3a"), "Error3"), IsAlreadyCaptured, true},
-		{Wrap(NewAlreadyCapturedf("Err4"), "Wrap4"), IsAlreadyCaptured, true},
-		{NewNotImplemented(Wrap(NewAlreadyCapturedf("Err5"), "Wrap5"), "NotImplemend5"), IsAlreadyCaptured, true},
-		{Wrap(NewAlreadyCaptured(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "AlreadyCaptured6"), "Wrap6a"), IsAlreadyCaptured, true},
-		{Wrap(NewAlreadyCaptured(errors.New("I'm the cause7"), "AlreadyCaptured7"), "Wrap7"), IsAlreadyCaptured, true},
-		{NewAlreadyCapturedf("Error8"), IsAlreadyCaptured, true},
-		{nil, IsAlreadyCaptured, false},
-		{testBehave{}, IsAlreadyCaptured, false},
-		{testBehave{ret: true}, IsAlreadyCaptured, true},
 	}
 	for i, test := range tests {
 		if want, have := test.want, test.is(test.err); want != have {
@@ -782,6 +782,35 @@ func TestBehaviourNotValid(t *testing.T) {
 		{nil, IsNotValid, false},
 		{testBehave{}, IsNotValid, false},
 		{testBehave{ret: true}, IsNotValid, true},
+	}
+	for i, test := range tests {
+		if want, have := test.want, test.is(test.err); want != have {
+			t.Errorf("Index %d: Want %t Have %t", i, want, have)
+		}
+	}
+}
+
+func (nf testBehave) Overflowed() bool {
+	return nf.ret
+}
+
+func TestBehaviourOverflowed(t *testing.T) {
+	tests := []struct {
+		err  error
+		is   BehaviourFunc
+		want bool
+	}{
+		{errors.New("Error1"), IsOverflowed, false},
+		{NewOverflowed(nil, "Error2"), IsOverflowed, false},
+		{NewOverflowed(Error("Error3a"), "Error3"), IsOverflowed, true},
+		{Wrap(NewOverflowedf("Err4"), "Wrap4"), IsOverflowed, true},
+		{NewNotImplemented(Wrap(NewOverflowedf("Err5"), "Wrap5"), "NotImplemend5"), IsOverflowed, true},
+		{Wrap(NewOverflowed(Wrap(NewNotImplementedf("Err6"), "Wrap6"), "Overflowed6"), "Wrap6a"), IsOverflowed, true},
+		{Wrap(NewOverflowed(errors.New("I'm the cause7"), "Overflowed7"), "Wrap7"), IsOverflowed, true},
+		{NewOverflowedf("Error8"), IsOverflowed, true},
+		{nil, IsOverflowed, false},
+		{testBehave{}, IsOverflowed, false},
+		{testBehave{ret: true}, IsOverflowed, true},
 	}
 	for i, test := range tests {
 		if want, have := test.want, test.is(test.err); want != have {

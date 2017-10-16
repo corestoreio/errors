@@ -46,6 +46,49 @@ func IsAborted(err error) bool {
 }
 
 type (
+	alreadyCaptured  struct{ *withStack }
+	alreadyCapturedf struct{ *fundamental }
+)
+
+// NewAlreadyCaptured returns an error which wraps err that satisfies
+// IsAlreadyCaptured().
+func NewAlreadyCaptured(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return alreadyCaptured{errWrapf(err, msg, args...)}
+}
+
+// NewAlreadyCapturedf returns a formatted error that satisfies IsAlreadyCaptured().
+func NewAlreadyCapturedf(format string, args ...interface{}) error {
+	return alreadyCapturedf{errNewf(format, args...)}
+}
+
+func isAlreadyCaptured(err error) (ok bool) {
+	type iFace interface {
+		AlreadyCaptured() bool
+	}
+	switch et := err.(type) {
+	case alreadyCaptured:
+		ok = true
+	case alreadyCapturedf:
+		ok = true
+	case iFace:
+		ok = et.AlreadyCaptured()
+	}
+	return
+}
+
+// IsAlreadyCaptured reports whether err was created with NewAlreadyCaptured() or
+// implements interface:
+//     type AlreadyCaptureder interface {
+//            AlreadyCaptured() bool
+//     }
+func IsAlreadyCaptured(err error) bool {
+	return CausedBehaviour(err, isAlreadyCaptured)
+}
+
+type (
 	alreadyClosed  struct{ *withStack }
 	alreadyClosedf struct{ *fundamental }
 )
@@ -172,49 +215,6 @@ func isAlreadyInUse(err error) (ok bool) {
 //     }
 func IsAlreadyInUse(err error) bool {
 	return CausedBehaviour(err, isAlreadyInUse)
-}
-
-type (
-	alreadyCaptured  struct{ *withStack }
-	alreadyCapturedf struct{ *fundamental }
-)
-
-// NewAlreadyCaptured returns an error which wraps err that satisfies
-// IsAlreadyCaptured().
-func NewAlreadyCaptured(err error, msg string, args ...interface{}) error {
-	if err == nil {
-		return nil
-	}
-	return alreadyCaptured{errWrapf(err, msg, args...)}
-}
-
-// NewAlreadyCapturedf returns a formatted error that satisfies IsAlreadyCaptured().
-func NewAlreadyCapturedf(format string, args ...interface{}) error {
-	return alreadyCapturedf{errNewf(format, args...)}
-}
-
-func isAlreadyCaptured(err error) (ok bool) {
-	type iFace interface {
-		AlreadyCaptured() bool
-	}
-	switch et := err.(type) {
-	case alreadyCaptured:
-		ok = true
-	case alreadyCapturedf:
-		ok = true
-	case iFace:
-		ok = et.AlreadyCaptured()
-	}
-	return
-}
-
-// IsAlreadyCaptured reports whether err was created with NewAlreadyCaptured() or
-// implements interface:
-//     type AlreadyCaptureder interface {
-//            AlreadyCaptured() bool
-//     }
-func IsAlreadyCaptured(err error) bool {
-	return CausedBehaviour(err, isAlreadyCaptured)
 }
 
 type (
@@ -1161,6 +1161,49 @@ func isNotValid(err error) (ok bool) {
 //     }
 func IsNotValid(err error) bool {
 	return CausedBehaviour(err, isNotValid)
+}
+
+type (
+	overflowed  struct{ *withStack }
+	overflowedf struct{ *fundamental }
+)
+
+// NewOverflowed returns an error which wraps err that satisfies
+// IsOverflowed().
+func NewOverflowed(err error, msg string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return overflowed{errWrapf(err, msg, args...)}
+}
+
+// NewOverflowedf returns a formatted error that satisfies IsOverflowed().
+func NewOverflowedf(format string, args ...interface{}) error {
+	return overflowedf{errNewf(format, args...)}
+}
+
+func isOverflowed(err error) (ok bool) {
+	type iFace interface {
+		Overflowed() bool
+	}
+	switch et := err.(type) {
+	case overflowed:
+		ok = true
+	case overflowedf:
+		ok = true
+	case iFace:
+		ok = et.Overflowed()
+	}
+	return
+}
+
+// IsOverflowed reports whether err was created with NewOverflowed() or
+// implements interface:
+//     type Overfloweder interface {
+//            Overflowed() bool
+//     }
+func IsOverflowed(err error) bool {
+	return CausedBehaviour(err, isOverflowed)
 }
 
 type (

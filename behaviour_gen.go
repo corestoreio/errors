@@ -29,10 +29,10 @@ import (
 
 var behaviours = []string{
 	"aborted",
+	"alreadyCaptured",
 	"alreadyClosed",
 	"alreadyExists",
 	"alreadyInUse",
-	"alreadyCaptured",
 	"alreadyRefunded",
 	"blocked",
 	"connectionFailed",
@@ -55,6 +55,7 @@ var behaviours = []string{
 	"notRecoverable",
 	"notSupported",
 	"notValid",
+	"overflowed",
 	"permissionDenied",
 	"quotaExceeded",
 	"readFailed",
