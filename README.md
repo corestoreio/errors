@@ -13,6 +13,11 @@ for adding new symbols to this package is intentionally set high.
 
 Before proposing a change, please discuss your change by raising an issue.
 
+Additional inspiration:
+
+- [https://www.reddit.com/r/golang/comments/7i33vs/error_handling_in_upspin/](https://www.reddit.com/r/golang/comments/7i33vs/error_handling_in_upspin/)
+- [https://news.ycombinator.com/item?id=15867015](https://news.ycombinator.com/item?id=15867015)
+
 ## Licence
 
 BSD-2-Clause
