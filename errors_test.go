@@ -33,7 +33,6 @@ import (
 )
 
 func TestNew(t *testing.T) {
-
 	tests := []struct {
 		err  string
 		want error
@@ -53,7 +52,6 @@ func TestNew(t *testing.T) {
 }
 
 func TestWrapNil(t *testing.T) {
-
 	got := Wrap(nil, "no error")
 	if got != nil {
 		t.Errorf("Wrap(nil, \"no error\"): got %#v, expected nil", got)
@@ -61,7 +59,6 @@ func TestWrapNil(t *testing.T) {
 }
 
 func TestWrap(t *testing.T) {
-
 	tests := []struct {
 		err     error
 		message string
@@ -84,7 +81,6 @@ type nilError struct{}
 func (nilError) Error() string { return "nil error" }
 
 func TestCause(t *testing.T) {
-
 	x := New("error")
 	tests := []struct {
 		err  error

@@ -72,19 +72,19 @@ func (m *MultiErr) Error() string {
 	return m.Formatter(m.Errors)
 }
 
-// MultiErrContainsAll checks if err contains a behavioral error.
+// MultiErrMatchAll checks if err contains a behavioral error.
 // 1st argument err must be of type (*MultiErr) and validate function vf
 // at least one of the many Is*() e.g. IsNotValid(), see type BehaviourFunc.
 // All validate functions must return true.
 // If there are multiple behavioral errors and one BehaviourFunc it will stop
 // after all errors matches the BehaviourFunc, not at the first match.
-func MultiErrContainsAll(err error, bfs ...BehaviourFunc) bool {
+func MultiErrMatchAll(err error, ks ...Kind) bool {
 	me, ok := err.(*MultiErr)
 	if !ok {
 		return false
 	}
 
-	if len(bfs) == 0 || len(me.Errors) == 0 {
+	if len(ks) == 0 || len(me.Errors) == 0 {
 		return false
 	}
 
@@ -93,31 +93,31 @@ func MultiErrContainsAll(err error, bfs ...BehaviourFunc) bool {
 		if e != nil {
 			errCount++
 		}
-		for _, f := range bfs {
-			if e != nil && f(e) {
+		for _, k := range ks {
+			if e != nil && k.Match(e) {
 				validCount++
 			}
 		}
 	}
-	return validCount == errCount || validCount == len(bfs)
+	return validCount == errCount || validCount == len(ks)
 }
 
-// MultiErrContainsAny checks if err contains at least one behavioral error.
+// MultiErrMatchAny checks if err contains at least one behavioral error.
 // 1st argument err must be of type (*MultiErr) and validate function vf
 // at least one of the many Is*() e.g. IsNotValid(), see type BehaviourFunc.
-func MultiErrContainsAny(err error, bfs ...BehaviourFunc) bool {
+func MultiErrMatchAny(err error, ks ...Kind) bool {
 	me, ok := err.(*MultiErr)
 	if !ok {
 		return false
 	}
 
-	if len(bfs) == 0 || len(me.Errors) == 0 {
+	if len(ks) == 0 || len(me.Errors) == 0 {
 		return false
 	}
 
 	for _, e := range me.Errors {
-		for _, f := range bfs {
-			if e != nil && f(e) {
+		for _, k := range ks {
+			if e != nil && k.Match(e) {
 				return true
 			}
 		}

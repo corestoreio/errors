@@ -83,14 +83,14 @@ func xxxTestMultiErr_CustomFormatter(t *testing.T) {
 
 	m1 := errors.NewMultiErr(errors.New("Hello1"))
 	m1.AppendErrors(
-		errors.NewMultiErr(errors.NewAlreadyClosedf("Brain"),
-			errors.NewNotFoundf("Mind"),
+		errors.NewMultiErr(errors.AlreadyClosed.Newf("Brain"),
+			errors.NotFound.Newf("Mind"),
 		),
 		errors.New("Hello2"),
 	)
 
 	assert.Regexp(t,
-		"Hello1\ngithub.com/corestoreio/errors_test.TestMultiErr_CustomFormatter\n\t.+/github.com/corestoreio/errors/multierr_test.go:84\ntesting.tRunner\n\t/usr/local/opt/go/libexec/src/testing/testing.go:[0-9]+\nAlready closed\ngithub.com/corestoreio/errors.NewAlreadyClosedf\n\t.+/github.com/corestoreio/errors/behaviour.go:414: Brain\nNot found\ngithub.com/corestoreio/errors.NewNotFoundf\n\t.+/github.com/corestoreio/errors/behaviour.go:234: Mind\nHello2\ngithub.com/corestoreio/errors_test.TestMultiErr_CustomFormatter\n\t.+/github.com/corestoreio/errors/multierr_test.go:89\ntesting.tRunner\n\t.+/testing/testing.go:[0-9]+\n",
+		"Hello1\ngithub.com/corestoreio/errors_test.TestMultiErr_CustomFormatter\n\t.+/github.com/corestoreio/errors/multierr_test.go:84\ntesting.tRunner\n\t/usr/local/opt/go/libexec/src/testing/testing.go:[0-9]+\nAlready closed\ngithub.com/corestoreio/errors.NewAlreadyClosedf\n\t.+/github.com/corestoreio/errors/behaviour.go:414: Brain\nNot found\ngithub.com/corestoreio/errors.NotFound.Newf\n\t.+/github.com/corestoreio/errors/behaviour.go:234: Mind\nHello2\ngithub.com/corestoreio/errors_test.TestMultiErr_CustomFormatter\n\t.+/github.com/corestoreio/errors/multierr_test.go:89\ntesting.tRunner\n\t.+/testing/testing.go:[0-9]+\n",
 		m1.Error())
 
 	m1.Formatter = func(errs []error) string {
@@ -143,29 +143,29 @@ func TestError(t *testing.T) {
 
 func TestMultiErrContainsAll(t *testing.T) {
 	tests := []struct {
-		me   error
-		vf   []errors.BehaviourFunc
-		want bool
+		me    error
+		kinds errors.Kinds
+		want  bool
 	}{
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1")), []errors.BehaviourFunc{errors.IsNotValid}, true},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1")), []errors.BehaviourFunc{errors.IsNotFound}, false},
-		{errors.NewMultiErr(), []errors.BehaviourFunc{errors.IsNotFound}, false},
-		{errors.New("random"), []errors.BehaviourFunc{errors.IsNotFound}, false},
-		{nil, []errors.BehaviourFunc{errors.IsNotFound}, false},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsNotFound}, true}, // 5
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsNotFound, errors.IsTemporary}, false},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsNotFound, errors.IsNotValid}, true},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsNotFound, errors.IsNotValid, errors.IsAlreadyExists}, true},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsAlreadyClosed, errors.IsNotValid, errors.IsAlreadyExists}, false},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), nil, false},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1")), errors.Kinds{errors.NotValid}, true},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1")), errors.Kinds{errors.NotFound}, false},
+		{errors.NewMultiErr(), errors.Kinds{errors.NotFound}, false},
+		{errors.New("random"), errors.Kinds{errors.NotFound}, false},
+		{nil, errors.Kinds{errors.NotFound}, false},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.NotFound}, true}, // 5
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.NotFound, errors.Temporary}, false},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.NotFound, errors.NotValid}, true},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.NotFound, errors.NotValid, errors.AlreadyExists}, true},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.AlreadyClosed, errors.NotValid, errors.AlreadyExists}, false},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), nil, false},
 		{errors.NewMultiErr(nil), nil, false},
 		{nil, nil, false},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2"), errors.NewMultiErr(errors.Error("r3"), errors.NewMultiErr(errors.Error("r4"), errors.NewNotImplementedf("r5")))),
-			[]errors.BehaviourFunc{errors.IsNotImplemented},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2"), errors.NewMultiErr(errors.Error("r3"), errors.NewMultiErr(errors.Error("r4"), errors.NotImplemented.Newf("r5")))),
+			errors.Kinds{errors.NotImplemented},
 			true},
 	}
 	for i, test := range tests {
-		if have, want := errors.MultiErrContainsAll(test.me, test.vf...), test.want; have != want {
+		if have, want := errors.MultiErrMatchAll(test.me, test.kinds...), test.want; have != want {
 			t.Errorf("Index %d: Have %t Want %t", i, have, want)
 		}
 	}
@@ -173,29 +173,29 @@ func TestMultiErrContainsAll(t *testing.T) {
 
 func TestMultiErrContainsAny(t *testing.T) {
 	tests := []struct {
-		me   error
-		vf   []errors.BehaviourFunc
-		want bool
+		me    error
+		kinds errors.Kinds
+		want  bool
 	}{
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1")), []errors.BehaviourFunc{errors.IsNotValid}, true},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1")), []errors.BehaviourFunc{errors.IsNotFound}, false},
-		{errors.NewMultiErr(), []errors.BehaviourFunc{errors.IsNotFound}, false},
-		{errors.New("random"), []errors.BehaviourFunc{errors.IsNotFound}, false},
-		{nil, []errors.BehaviourFunc{errors.IsNotFound}, false},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsNotFound}, true},                     // 5
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsNotFound, errors.IsTemporary}, true}, // 6 different to All
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsNotFound, errors.IsNotValid}, true},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsNotFound, errors.IsNotValid, errors.IsAlreadyExists}, true},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), []errors.BehaviourFunc{errors.IsAlreadyClosed, errors.IsNotValid, errors.IsAlreadyExists}, true}, // 9 different to All
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2")), nil, false},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1")), errors.Kinds{errors.NotValid}, true},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1")), errors.Kinds{errors.NotFound}, false},
+		{errors.NewMultiErr(), errors.Kinds{errors.NotFound}, false},
+		{errors.New("random"), errors.Kinds{errors.NotFound}, false},
+		{nil, errors.Kinds{errors.NotFound}, false},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.NotFound}, true},                   // 5
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.NotFound, errors.Temporary}, true}, // 6 different to All
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.NotFound, errors.NotValid}, true},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.NotFound, errors.NotValid, errors.AlreadyExists}, true},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), errors.Kinds{errors.AlreadyClosed, errors.NotValid, errors.AlreadyExists}, true}, // 9 different to All
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2")), nil, false},
 		{errors.NewMultiErr(nil), nil, false},
 		{nil, nil, false},
-		{errors.NewMultiErr(nil, errors.NewNotValidf("r1"), errors.NewNotFoundf("r2"), errors.NewMultiErr(errors.Error("r3"), errors.NewMultiErr(errors.Error("r4"), errors.NewNotImplementedf("r5")))),
-			[]errors.BehaviourFunc{errors.IsNotImplemented},
+		{errors.NewMultiErr(nil, errors.NotValid.Newf("r1"), errors.NotFound.Newf("r2"), errors.NewMultiErr(errors.Error("r3"), errors.NewMultiErr(errors.Error("r4"), errors.NotImplemented.Newf("r5")))),
+			errors.Kinds{errors.NotImplemented},
 			true},
 	}
 	for i, test := range tests {
-		if have, want := errors.MultiErrContainsAny(test.me, test.vf...), test.want; have != want {
+		if have, want := errors.MultiErrMatchAny(test.me, test.kinds...), test.want; have != want {
 			t.Errorf("Index %d: Have %t Want %t", i, have, want)
 		}
 	}

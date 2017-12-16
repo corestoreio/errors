@@ -27,7 +27,7 @@ package errors_test
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
+	"github.com/corestoreio/errors"
 )
 
 func ExampleNew() {

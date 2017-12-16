@@ -1,129 +1,61 @@
-// Copyright 2015-2016, Cyrill @ Schumacher.fm and the CoreStore contributors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package errors
 
 import (
-	"errors"
+	"fmt"
 	"testing"
+
+	stderrors "errors"
 )
 
-var benchmarkAsserted bool
-
-type benchAlreadyExists struct{}
-
-func (a benchAlreadyExists) Error() string       { return "Err" }
-func (a benchAlreadyExists) AlreadyExists() bool { return true }
-
-func BenchmarkAssertBehaviourEmptyStruct(b *testing.B) {
-	var ae = benchAlreadyExists{}
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		benchmarkAsserted = IsAlreadyExists(ae)
-		if !benchmarkAsserted {
-			b.Errorf("Hell should already exists: %#v", ae)
-		}
+func noErrors(at, depth int) error {
+	if at >= depth {
+		return stderrors.New("no error")
 	}
+	return noErrors(at+1, depth)
 }
 
-type cAlreadyExists string
-
-func (c cAlreadyExists) Error() string       { return string(c) }
-func (c cAlreadyExists) AlreadyExists() bool { return true }
-
-func BenchmarkAssertBehaviourConstant(b *testing.B) {
-	const hell cAlreadyExists = "Hell"
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		benchmarkAsserted = IsAlreadyExists(hell)
-		if !benchmarkAsserted {
-			b.Error("Hell should already exists.")
-		}
+func yesErrors(at, depth int) error {
+	if at >= depth {
+		return New("ye error")
 	}
+	return yesErrors(at+1, depth)
 }
 
-func BenchmarkAssertBehaviourPointer(b *testing.B) {
-	var hell = NewAlreadyExists(errors.New("Hell"), "There is already a place for you")
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		benchmarkAsserted = IsAlreadyExists(hell)
-		if !benchmarkAsserted {
-			b.Error("Hell should already exists.")
-		}
+// GlobalE is an exported global to store the result of benchmark results,
+// preventing the compiler from optimising the benchmark functions away.
+var GlobalE error
+
+func BenchmarkErrors(b *testing.B) {
+	type run struct {
+		stack int
+		std   bool
 	}
-}
-
-func BenchmarkAssertBehaviourNoMatch(b *testing.B) {
-	var hell = NewAlreadyClosed(errors.New("Hell"), "There is already a place for you")
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		benchmarkAsserted = IsAlreadyExists(hell)
-		if benchmarkAsserted {
-			b.Error("Hell should already be clsoed.")
-		}
+	runs := []run{
+		{10, false},
+		{10, true},
+		{100, false},
+		{100, true},
+		{1000, false},
+		{1000, true},
 	}
-}
-
-var benchmarkMultiErr string
-
-func BenchmarkMultiErr(b *testing.B) {
-	e := NewMultiErr().
-		AppendErrors(
-			errors.New("Err5"),
-			nil,
-			errors.New("Err6"),
-			errors.New("Err7"),
-		)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		benchmarkMultiErr = e.Error()
-	}
-}
-
-var errorPointer = errors.New("I'm an error pointer")
-var errorPointer2 = errors.New("I'm an error pointer2")
-
-const errorConstant Error = `I'm an error constant`
-const errorConstant2 Error = `I'm an error constant2`
-
-var errorHave string
-
-func BenchmarkMultiErrPointer(b *testing.B) {
-	merr := NewMultiErr(errorPointer, errorPointer2)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		errorHave = merr.Error()
-		if errorHave == "" {
-			b.Fatal("errorHave is empty")
+	for _, r := range runs {
+		part := "pkg/errors"
+		if r.std {
+			part = "errors"
 		}
-	}
-}
-
-func BenchmarkMultiErrConstant(b *testing.B) {
-	merr := NewMultiErr(errorConstant, errorConstant2)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		errorHave = merr.Error()
-		if errorHave == "" {
-			b.Fatal("errorHave is empty")
-		}
+		name := fmt.Sprintf("%s-stack-%d", part, r.stack)
+		b.Run(name, func(b *testing.B) {
+			var err error
+			f := yesErrors
+			if r.std {
+				f = noErrors
+			}
+			b.ReportAllocs()
+			for i := 0; i < b.N; i++ {
+				err = f(0, r.stack)
+			}
+			b.StopTimer()
+			GlobalE = err
+		})
 	}
 }
