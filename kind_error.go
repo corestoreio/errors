@@ -38,6 +38,11 @@ type Kinder interface {
 	ErrorKind() Kind
 }
 
+// Empty returns true if no behaviour/kind has been set.
+func (k Kind) Empty() bool {
+	return k == 0
+}
+
 func (k Kind) isSet(k2 Kind) bool {
 	return k&k2 != 0
 }
@@ -393,7 +398,9 @@ func Unmarshal(b []byte) error {
 	case 'S':
 		// kindStacked value.
 		var err kindStacked
-		err.UnmarshalBinary(b)
+		if err2 := err.UnmarshalBinary(b); err2 != nil {
+			return WithStack(err2)
+		}
 		return err
 	case 'F':
 		// kindFundamental value.
@@ -403,8 +410,7 @@ func Unmarshal(b []byte) error {
 		}
 		return err
 	default:
-		// ("Unmarshal error: corrupt data %q", b)
-		return errors.New(string(b))
+		return CorruptData.Newf("[errors] Unmarshal error: corrupt data %q", b)
 	}
 }
 
@@ -494,6 +500,10 @@ func CausedBehaviour(err error, k Kind) bool {
 	return false
 }
 
+// NoKind defines an empty Kind with no behaviour. This constant must be placed
+// outside the constant block to avoid a conflict with iota.
+const NoKind Kind = 0
+
 // These constants define different behaviours. They are not sorted and new
 // constants must be appended at the end. The zero kind defines empty.
 const (
@@ -553,13 +563,14 @@ const (
 	TooLarge
 	Unavailable
 	WrongVersion
+	CorruptData
 	maxKind
 )
 
 var maxKindExp = Kind(math.Log2(float64(maxKind))) // should be a constant ...
 
-// _Kind_map contains alphabetically sorted error constants.
-var _Kind_map = map[Kind]string{
+// _KindMap contains alphabetically sorted error constants.
+var _KindMap = map[Kind]string{
 	Aborted:            "Aborted",
 	AlreadyCaptured:    "AlreadyCaptured",
 	AlreadyClosed:      "AlreadyClosed",
@@ -570,6 +581,7 @@ var _Kind_map = map[Kind]string{
 	Blocked:            "Blocked",
 	ConnectionFailed:   "ConnectionFailed",
 	ConnectionLost:     "ConnectionLost",
+	CorruptData:        "CorruptData",
 	Declined:           "Declined",
 	DecryptionFailed:   "DecryptionFailed",
 	Denied:             "Denied",
@@ -619,7 +631,7 @@ var _Kind_map = map[Kind]string{
 }
 
 func (k Kind) String() string {
-	if str, ok := _Kind_map[k]; ok {
+	if str, ok := _KindMap[k]; ok {
 		return str
 	}
 	return "Kind(" + strconv.FormatUint(uint64(k), 10) + ")"

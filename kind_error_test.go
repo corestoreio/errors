@@ -251,6 +251,9 @@ func TestUnwrapKind(t *testing.T) {
 }
 
 func TestUnwrapKinds(t *testing.T) {
+
+	t.Logf("%d %d %d", NoKind, Aborted, AlreadyCaptured)
+
 	tests := []struct {
 		err  error
 		want string
@@ -355,7 +358,8 @@ func TestMarshalling(t *testing.T) {
 	})
 	t.Run("incorrect formatted data", func(t *testing.T) {
 		err := Unmarshal([]byte("x\x0eordinary error"))
-		assert.EqualError(t, err, "\x0eordinary error")
+		assert.True(t, CorruptData.Match(err))
+		assert.EqualError(t, err, "[errors] Unmarshal error: corrupt data \"\\x0eordinary error\"")
 
 		err = Unmarshal([]byte("e\xffordinary error"))
 		assert.EqualError(t, err, "[errors] Unmarshal error[1]. Data length: 15")
