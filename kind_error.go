@@ -26,8 +26,10 @@ import (
 
 // Kind defines the kind or behaviour of an error. An error can have multiple
 // Kinds wrapped into each other via bit operations. A zero Kind represents an
-// empty Kind.
-type Kind uint
+// empty Kind. The underlying type uint might change, so please use the
+// functions provided in this package to manipulate the Kind. 63 different
+// constants are currently supported.
+type Kind uint64
 
 // Kinds a slice of Kind. Each Kind does not contain any other Kind.
 type Kinds []Kind
@@ -41,6 +43,22 @@ type Kinder interface {
 // Empty returns true if no behaviour/kind has been set.
 func (k Kind) Empty() bool {
 	return k == 0
+}
+
+// Unwrap returns all Kind where the bit flag is set. If Kind is empty, returns
+// nil.
+func (k Kind) Unwrap() Kinds {
+	if k.Empty() {
+		return nil
+	}
+	var ks Kinds
+	const one Kind = 1 // Go type system ;-)
+	for i := one - 1; i < maxKindExp; i++ {
+		if k2 := one << i; k.isSet(k2) {
+			ks = append(ks, k2)
+		}
+	}
+	return ks
 }
 
 func (k Kind) isSet(k2 Kind) bool {
@@ -84,6 +102,29 @@ func (ks Kinds) String() string {
 		buf.WriteString(k.String())
 	}
 	return buf.String()
+}
+
+func (k Kind) String() string {
+	if str, ok := _KindMap[k]; ok {
+		return str
+	}
+	isWrapped := false
+	var buf strings.Builder
+	for i, k2 := range k.Unwrap() {
+		if i > 0 {
+			buf.WriteByte(',')
+		}
+		if str, ok := _KindMap[k2]; ok {
+			buf.WriteString(str)
+		} else {
+			buf.WriteString("Kind(" + strconv.FormatUint(uint64(k), 10) + ")")
+		}
+		isWrapped = true
+	}
+	if isWrapped {
+		return buf.String()
+	}
+	return "Kind(" + strconv.FormatUint(uint64(k), 10) + ")"
 }
 
 func (k Kind) match(err error) bool {
@@ -271,19 +312,7 @@ func UnwrapKinds(err error) Kinds {
 	if err == nil {
 		return nil
 	}
-	uk := UnwrapKind(err)
-	if uk == 0 {
-		return nil
-	}
-
-	var ks Kinds
-	const one Kind = 1 // Go type system ;-)
-	for i := one - 1; i < maxKindExp; i++ {
-		if k := one << i; uk.isSet(k) {
-			ks = append(ks, k)
-		}
-	}
-	return ks
+	return UnwrapKind(err).Unwrap()
 }
 
 // UnwrapKind extract the Kind of an error. If the error has not been created
@@ -564,6 +593,7 @@ const (
 	Unavailable
 	WrongVersion
 	CorruptData
+	OutofRange
 	maxKind
 )
 
@@ -610,6 +640,7 @@ var _KindMap = map[Kind]string{
 	NotRecoverable:     "NotRecoverable",
 	NotSupported:       "NotSupported",
 	NotValid:           "NotValid",
+	OutofRange:         "OutofRange",
 	Overflowed:         "Overflowed",
 	PermissionDenied:   "PermissionDenied",
 	QuotaExceeded:      "QuotaExceeded",
@@ -628,11 +659,4 @@ var _KindMap = map[Kind]string{
 	VerificationFailed: "VerificationFailed",
 	WriteFailed:        "WriteFailed",
 	WrongVersion:       "WrongVersion",
-}
-
-func (k Kind) String() string {
-	if str, ok := _KindMap[k]; ok {
-		return str
-	}
-	return "Kind(" + strconv.FormatUint(uint64(k), 10) + ")"
 }

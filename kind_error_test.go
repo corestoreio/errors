@@ -251,9 +251,6 @@ func TestUnwrapKind(t *testing.T) {
 }
 
 func TestUnwrapKinds(t *testing.T) {
-
-	t.Logf("%d %d %d", NoKind, Aborted, AlreadyCaptured)
-
 	tests := []struct {
 		err  error
 		want string
@@ -262,7 +259,7 @@ func TestUnwrapKinds(t *testing.T) {
 		{(UserNotFound).Newf("User NF"), Kinds{UserNotFound}.String()},
 		{errors.New("usual error"), Kinds{}.String()},
 		{nil, Kinds{}.String()},
-		{Kind(math.MaxUint32).Newf("all constants"), Kinds{Aborted, AlreadyCaptured, AlreadyClosed, AlreadyExists, AlreadyInUse, AlreadyRefunded, Blocked, ReadFailed, WriteFailed, VerificationFailed, DecryptionFailed, EncryptionFailed, ConnectionFailed, BadEncoding, ConnectionLost, Declined, Denied, Duplicated, NotEmpty, Empty, Exceeded, Exists, NotExists, Expired, Fatal, InProgress, Insufficient, Interrupted, IsDirectory, IsFile, NotDirectory, NotFile}.String()},
+		{Kind(math.MaxUint64).Newf("all constants"), Kinds{Aborted, AlreadyCaptured, AlreadyClosed, AlreadyExists, AlreadyInUse, AlreadyRefunded, Blocked, ReadFailed, WriteFailed, VerificationFailed, DecryptionFailed, EncryptionFailed, ConnectionFailed, BadEncoding, ConnectionLost, Declined, Denied, Duplicated, NotEmpty, Empty, Exceeded, Exists, NotExists, Expired, Fatal, InProgress, Insufficient, Interrupted, IsDirectory, IsFile, NotDirectory, NotFile, Locked, Mismatch, NotAcceptable, NotAllowed, NotFound, NotImplemented, NotRecoverable, NotSupported, NotValid, Overflowed, PermissionDenied, Unauthorized, UserNotFound, QuotaExceeded, Rejected, Required, Restricted, Revoked, Temporary, Terminated, Timeout, TooLarge, Unavailable, WrongVersion, CorruptData, OutofRange}.String()},
 	}
 	for _, test := range tests {
 		want, have := test.want, UnwrapKinds(test.err)
@@ -299,7 +296,13 @@ func TestKind_String(t *testing.T) {
 	if have, want := Aborted.String(), "Aborted"; have != want {
 		t.Errorf("Have %q Want %q", have, want)
 	}
-	if have, want := Kind(math.MaxUint32).String(), "Kind(4294967295)"; have != want {
+	if have, want := Kind(math.MaxUint32).String(), "Aborted,AlreadyCaptured,AlreadyClosed,AlreadyExists,AlreadyInUse,AlreadyRefunded,Blocked,ReadFailed,WriteFailed,VerificationFailed,DecryptionFailed,EncryptionFailed,ConnectionFailed,BadEncoding,ConnectionLost,Declined,Denied,Duplicated,NotEmpty,Empty,Exceeded,Exists,NotExists,Expired,Fatal,InProgress,Insufficient,Interrupted,IsDirectory,IsFile,NotDirectory,NotFile"; have != want {
+		t.Errorf("Have %q Want %q", have, want)
+	}
+	if have, want := Kind(0).String(), "Kind(0)"; have != want {
+		t.Errorf("Have %q Want %q", have, want)
+	}
+	if have, want := (UserNotFound | Temporary | Locked).String(), "Locked,UserNotFound,Temporary"; have != want {
 		t.Errorf("Have %q Want %q", have, want)
 	}
 }
