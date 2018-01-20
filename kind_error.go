@@ -594,6 +594,7 @@ const (
 	WrongVersion
 	CorruptData
 	OutofRange
+	OutofDate
 	maxKind
 )
 
@@ -640,6 +641,7 @@ var _KindMap = map[Kind]string{
 	NotRecoverable:     "NotRecoverable",
 	NotSupported:       "NotSupported",
 	NotValid:           "NotValid",
+	OutofDate:          "OutofDate",
 	OutofRange:         "OutofRange",
 	Overflowed:         "Overflowed",
 	PermissionDenied:   "PermissionDenied",
