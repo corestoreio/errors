@@ -56,7 +56,7 @@ func BenchmarkAssertBehaviourConstant(b *testing.B) {
 }
 
 func BenchmarkAssertBehaviourPointer(b *testing.B) {
-	var hell = AlreadyExists.New(errors.New("hell"), "There is already a place for you")
+	var hell error = AlreadyExists.New(errors.New("hell"), "There is already a place for you")
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -67,16 +67,41 @@ func BenchmarkAssertBehaviourPointer(b *testing.B) {
 	}
 }
 
-func BenchmarkAssertBehaviourNoMatch(b *testing.B) {
-	var hell = AlreadyClosed.New(errors.New("hell"), "There is already a place for you")
+func BenchmarkAssertBehaviourIFace(b *testing.B) {
+	var hell error = errTerminated{Kind: Terminated}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		benchmarkAsserted = AlreadyExists.Match(hell)
-		if benchmarkAsserted {
-			b.Error("Hell should already be clsoed.")
+		benchmarkAsserted = Terminated.MatchInterface(hell)
+		if !benchmarkAsserted {
+			b.Error("Hell should ber terminated.")
 		}
 	}
+}
+
+func BenchmarkAssertBehaviourNoMatch(b *testing.B) {
+	b.Run("type", func(b *testing.B) {
+		var hell = AlreadyClosed.New(errors.New("hell"), "There is already a place for you")
+		b.ReportAllocs()
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			benchmarkAsserted = AlreadyExists.Match(hell)
+			if benchmarkAsserted {
+				b.Error("Hell should already be closed.")
+			}
+		}
+	})
+	b.Run("iface", func(b *testing.B) {
+		var hell = errors.New("not matched")
+		b.ReportAllocs()
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			benchmarkAsserted = AlreadyCaptured.MatchInterface(hell)
+			if benchmarkAsserted {
+				b.Error("Hell should not match")
+			}
+		}
+	})
 }
 
 var benchmarkMultiErr string

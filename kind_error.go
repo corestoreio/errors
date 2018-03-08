@@ -139,9 +139,144 @@ func (k Kind) match(err error) bool {
 	return false
 }
 
+func (k Kind) matchInterface(err error) bool {
+	switch e := err.(type) {
+	case iFaceAborted:
+		return e.Aborted() && k.isSet(Aborted)
+	case iFaceAlreadyCaptured:
+		return e.AlreadyCaptured() && k.isSet(AlreadyCaptured)
+	case iFaceAlreadyClosed:
+		return e.AlreadyClosed() && k.isSet(AlreadyClosed)
+	case iFaceAlreadyExists:
+		return e.AlreadyExists() && k.isSet(AlreadyExists)
+	case iFaceAlreadyInUse:
+		return e.AlreadyInUse() && k.isSet(AlreadyInUse)
+	case iFaceAlreadyRefunded:
+		return e.AlreadyRefunded() && k.isSet(AlreadyRefunded)
+	case iFaceBlocked:
+		return e.Blocked() && k.isSet(Blocked)
+	case iFaceReadFailed:
+		return e.ReadFailed() && k.isSet(ReadFailed)
+	case iFaceWriteFailed:
+		return e.WriteFailed() && k.isSet(WriteFailed)
+	case iFaceVerificationFailed:
+		return e.VerificationFailed() && k.isSet(VerificationFailed)
+	case iFaceDecryptionFailed:
+		return e.DecryptionFailed() && k.isSet(DecryptionFailed)
+	case iFaceEncryptionFailed:
+		return e.EncryptionFailed() && k.isSet(EncryptionFailed)
+	case iFaceConnectionFailed:
+		return e.ConnectionFailed() && k.isSet(ConnectionFailed)
+	case iFaceBadEncoding:
+		return e.BadEncoding() && k.isSet(BadEncoding)
+	case iFaceConnectionLost:
+		return e.ConnectionLost() && k.isSet(ConnectionLost)
+	case iFaceDeclined:
+		return e.Declined() && k.isSet(Declined)
+	case iFaceDenied:
+		return e.Denied() && k.isSet(Denied)
+	case iFaceDuplicated:
+		return e.Duplicated() && k.isSet(Duplicated)
+	case iFaceNotEmpty:
+		return e.NotEmpty() && k.isSet(NotEmpty)
+	case iFaceEmpty:
+		return e.Empty() && k.isSet(Empty)
+	case iFaceExceeded:
+		return e.Exceeded() && k.isSet(Exceeded)
+	case iFaceExists:
+		return e.Exists() && k.isSet(Exists)
+	case iFaceNotExists:
+		return e.NotExists() && k.isSet(NotExists)
+	case iFaceExpired:
+		return e.Expired() && k.isSet(Expired)
+	case iFaceFatal:
+		return e.Fatal() && k.isSet(Fatal)
+	case iFaceInProgress:
+		return e.InProgress() && k.isSet(InProgress)
+	case iFaceInsufficient:
+		return e.Insufficient() && k.isSet(Insufficient)
+	case iFaceInterrupted:
+		return e.Interrupted() && k.isSet(Interrupted)
+	case iFaceIsDirectory:
+		return e.IsDirectory() && k.isSet(IsDirectory)
+	case iFaceIsFile:
+		return e.IsFile() && k.isSet(IsFile)
+	case iFaceNotDirectory:
+		return e.NotDirectory() && k.isSet(NotDirectory)
+	case iFaceNotFile:
+		return e.NotFile() && k.isSet(NotFile)
+	case iFaceLocked:
+		return e.Locked() && k.isSet(Locked)
+	case iFaceMismatch:
+		return e.Mismatch() && k.isSet(Mismatch)
+	case iFaceNotAcceptable:
+		return e.NotAcceptable() && k.isSet(NotAcceptable)
+	case iFaceNotAllowed:
+		return e.NotAllowed() && k.isSet(NotAllowed)
+	case iFaceNotFound:
+		return e.NotFound() && k.isSet(NotFound)
+	case iFaceNotImplemented:
+		return e.NotImplemented() && k.isSet(NotImplemented)
+	case iFaceNotRecoverable:
+		return e.NotRecoverable() && k.isSet(NotRecoverable)
+	case iFaceNotSupported:
+		return e.NotSupported() && k.isSet(NotSupported)
+	case iFaceNotValid:
+		return e.NotValid() && k.isSet(NotValid)
+	case iFaceOverflowed:
+		return e.Overflowed() && k.isSet(Overflowed)
+	case iFacePermissionDenied:
+		return e.PermissionDenied() && k.isSet(PermissionDenied)
+	case iFaceUnauthorized:
+		return e.Unauthorized() && k.isSet(Unauthorized)
+	case iFaceUserNotFound:
+		return e.UserNotFound() && k.isSet(UserNotFound)
+	case iFaceQuotaExceeded:
+		return e.QuotaExceeded() && k.isSet(QuotaExceeded)
+	case iFaceRejected:
+		return e.Rejected() && k.isSet(Rejected)
+	case iFaceRequired:
+		return e.Required() && k.isSet(Required)
+	case iFaceRestricted:
+		return e.Restricted() && k.isSet(Restricted)
+	case iFaceRevoked:
+		return e.Revoked() && k.isSet(Revoked)
+	case iFaceTemporary:
+		return e.Temporary() && k.isSet(Temporary)
+	case iFaceTerminated:
+		return e.Terminated() && k.isSet(Terminated)
+	case iFaceTimeout:
+		return e.Timeout() && k.isSet(Timeout)
+	case iFaceTooLarge:
+		return e.TooLarge() && k.isSet(TooLarge)
+	case iFaceUnavailable:
+		return e.Unavailable() && k.isSet(Unavailable)
+	case iFaceWrongVersion:
+		return e.WrongVersion() && k.isSet(WrongVersion)
+	case iFaceCorruptData:
+		return e.CorruptData() && k.isSet(CorruptData)
+	case iFaceOutofRange:
+		return e.OutofRange() && k.isSet(OutofRange)
+	case iFaceOutofDate:
+		return e.OutofDate() && k.isSet(OutofDate)
+	}
+	return false
+}
+
 // Match returns true if `err` matches the Kind.
+// Very fast matching.
 func (k Kind) Match(err error) bool {
 	return CausedBehaviour(err, k)
+}
+
+// MatchInterface supports interface behaviour type matching to test for a kind.
+// This allows a package to define a behaviour/kind of an error without
+// importing this package. An error type should implement a function like:
+// 		interface{ Fatal() bool }
+// Where `Fatal` can be any behaviour name like the constants in this package.
+// MatchInterface is 40x slower than function `Match`.
+func (k Kind) MatchInterface(err error) bool {
+	return causedBehaviourIFace(err, k)
 }
 
 // New wraps err with the specified Kind. Allows to write an additional message
@@ -282,12 +417,14 @@ func (e *kindFundamental) UnmarshalBinary(b []byte) error {
 
 // Is returns true if `err` is of Kind `k`. It unwraps all underlying errors
 // which implement the Causer interface.
+// Does not supported implemented behaviour functions.
 func Is(err error, k Kind) bool {
 	return k.Match(err)
 }
 
 // MatchAny checks if at least one Kind is included in `err`. It does not unwrap
 // `err` by its `Causer` interface.
+// Does not supported implemented behaviour functions.
 func MatchAny(err error, k ...Kind) bool {
 	if err == nil {
 		return false
@@ -298,6 +435,7 @@ func MatchAny(err error, k ...Kind) bool {
 
 // MatchAll checks if all Kinds are included in `err`. It does not unwrap `err`
 // by its `Causer` interface.
+// Does not supported implemented behaviour functions.
 func MatchAll(err error, k ...Kind) bool {
 	if err == nil {
 		return false
@@ -529,6 +667,23 @@ func CausedBehaviour(err error, k Kind) bool {
 	return false
 }
 
+func causedBehaviourIFace(err error, k Kind) bool {
+	if k.matchInterface(err) {
+		return true
+	}
+	for err != nil {
+		cause, ok := err.(causer)
+		if !ok {
+			return false
+		}
+		err = cause.Cause() // don't touch if you're unsure
+		if k.matchInterface(err) {
+			return true
+		}
+	}
+	return false
+}
+
 // NoKind defines an empty Kind with no behaviour. This constant must be placed
 // outside the constant block to avoid a conflict with iota.
 const NoKind Kind = 0
@@ -662,3 +817,65 @@ var _KindMap = map[Kind]string{
 	WriteFailed:        "WriteFailed",
 	WrongVersion:       "WrongVersion",
 }
+
+type (
+	iFaceAborted            interface{ Aborted() bool }
+	iFaceAlreadyCaptured    interface{ AlreadyCaptured() bool }
+	iFaceAlreadyClosed      interface{ AlreadyClosed() bool }
+	iFaceAlreadyExists      interface{ AlreadyExists() bool }
+	iFaceAlreadyInUse       interface{ AlreadyInUse() bool }
+	iFaceAlreadyRefunded    interface{ AlreadyRefunded() bool }
+	iFaceBlocked            interface{ Blocked() bool }
+	iFaceReadFailed         interface{ ReadFailed() bool }
+	iFaceWriteFailed        interface{ WriteFailed() bool }
+	iFaceVerificationFailed interface{ VerificationFailed() bool }
+	iFaceDecryptionFailed   interface{ DecryptionFailed() bool }
+	iFaceEncryptionFailed   interface{ EncryptionFailed() bool }
+	iFaceConnectionFailed   interface{ ConnectionFailed() bool }
+	iFaceBadEncoding        interface{ BadEncoding() bool }
+	iFaceConnectionLost     interface{ ConnectionLost() bool }
+	iFaceDeclined           interface{ Declined() bool }
+	iFaceDenied             interface{ Denied() bool }
+	iFaceDuplicated         interface{ Duplicated() bool }
+	iFaceNotEmpty           interface{ NotEmpty() bool }
+	iFaceEmpty              interface{ Empty() bool }
+	iFaceExceeded           interface{ Exceeded() bool }
+	iFaceExists             interface{ Exists() bool }
+	iFaceNotExists          interface{ NotExists() bool }
+	iFaceExpired            interface{ Expired() bool }
+	iFaceFatal              interface{ Fatal() bool }
+	iFaceInProgress         interface{ InProgress() bool }
+	iFaceInsufficient       interface{ Insufficient() bool }
+	iFaceInterrupted        interface{ Interrupted() bool }
+	iFaceIsDirectory        interface{ IsDirectory() bool }
+	iFaceIsFile             interface{ IsFile() bool }
+	iFaceNotDirectory       interface{ NotDirectory() bool }
+	iFaceNotFile            interface{ NotFile() bool }
+	iFaceLocked             interface{ Locked() bool }
+	iFaceMismatch           interface{ Mismatch() bool }
+	iFaceNotAcceptable      interface{ NotAcceptable() bool }
+	iFaceNotAllowed         interface{ NotAllowed() bool }
+	iFaceNotFound           interface{ NotFound() bool }
+	iFaceNotImplemented     interface{ NotImplemented() bool }
+	iFaceNotRecoverable     interface{ NotRecoverable() bool }
+	iFaceNotSupported       interface{ NotSupported() bool }
+	iFaceNotValid           interface{ NotValid() bool }
+	iFaceOverflowed         interface{ Overflowed() bool }
+	iFacePermissionDenied   interface{ PermissionDenied() bool }
+	iFaceUnauthorized       interface{ Unauthorized() bool }
+	iFaceUserNotFound       interface{ UserNotFound() bool }
+	iFaceQuotaExceeded      interface{ QuotaExceeded() bool }
+	iFaceRejected           interface{ Rejected() bool }
+	iFaceRequired           interface{ Required() bool }
+	iFaceRestricted         interface{ Restricted() bool }
+	iFaceRevoked            interface{ Revoked() bool }
+	iFaceTemporary          interface{ Temporary() bool }
+	iFaceTerminated         interface{ Terminated() bool }
+	iFaceTimeout            interface{ Timeout() bool }
+	iFaceTooLarge           interface{ TooLarge() bool }
+	iFaceUnavailable        interface{ Unavailable() bool }
+	iFaceWrongVersion       interface{ WrongVersion() bool }
+	iFaceCorruptData        interface{ CorruptData() bool }
+	iFaceOutofRange         interface{ OutofRange() bool }
+	iFaceOutofDate          interface{ OutofDate() bool }
+)
