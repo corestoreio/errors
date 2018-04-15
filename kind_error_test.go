@@ -259,7 +259,7 @@ func TestUnwrapKinds(t *testing.T) {
 		{(UserNotFound).Newf("User NF"), Kinds{UserNotFound}.String()},
 		{errors.New("usual error"), Kinds{}.String()},
 		{nil, Kinds{}.String()},
-		{Kind(math.MaxUint64).Newf("all constants"), Kinds{Aborted, AlreadyCaptured, AlreadyClosed, AlreadyExists, AlreadyInUse, AlreadyRefunded, Blocked, ReadFailed, WriteFailed, VerificationFailed, DecryptionFailed, EncryptionFailed, ConnectionFailed, BadEncoding, ConnectionLost, Declined, Denied, Duplicated, NotEmpty, Empty, Exceeded, Exists, NotExists, Expired, Fatal, InProgress, Insufficient, Interrupted, IsDirectory, IsFile, NotDirectory, NotFile, Locked, Mismatch, NotAcceptable, NotAllowed, NotFound, NotImplemented, NotRecoverable, NotSupported, NotValid, Overflowed, PermissionDenied, Unauthorized, UserNotFound, QuotaExceeded, Rejected, Required, Restricted, Revoked, Temporary, Terminated, Timeout, TooLarge, Unavailable, WrongVersion, CorruptData, OutofRange, OutofDate}.String()},
+		{Kind(math.MaxUint64).Newf("all constants"), Kinds{Aborted, AlreadyCaptured, AlreadyClosed, AlreadyExists, AlreadyInUse, AlreadyRefunded, Blocked, ReadFailed, WriteFailed, VerificationFailed, DecryptionFailed, EncryptionFailed, ConnectionFailed, BadEncoding, ConnectionLost, Declined, Denied, Duplicated, NotEmpty, Empty, Exceeded, Exists, NotExists, Expired, Fatal, InProgress, Insufficient, Interrupted, IsDirectory, IsFile, NotDirectory, NotFile, Locked, Mismatch, NotAcceptable, NotAllowed, NotFound, NotImplemented, NotRecoverable, NotSupported, NotValid, Overflowed, PermissionDenied, Unauthorized, UserNotFound, QuotaExceeded, Rejected, Required, Restricted, Revoked, Temporary, Terminated, Timeout, TooLarge, Unavailable, WrongVersion, CorruptData, OutOfRange, OutOfDate, TooShort}.String()},
 	}
 	for _, test := range tests {
 		want, have := test.want, UnwrapKinds(test.err)
@@ -323,7 +323,7 @@ func TestMarshalling(t *testing.T) {
 		err := (UserNotFound | Temporary | Locked).Newf(errTxt)
 		buf := MarshalAppend(err, nil)
 		sBuf := string(buf)
-		assert.Contains(t, sBuf, "F\x80\x80\x80\x80\x90\x80\x84\x02\x15"+errTxt+"\xca\x02"+errTxt+"\ngithub.com")
+		assert.Contains(t, sBuf, "F\x80\x80\x80\x80\x90\x80\x84\x02\x15"+errTxt+"\xcc\x02"+errTxt+"\ngithub.com")
 		assert.Contains(t, sBuf, "errors.Kind.Newf\n\t")
 		assert.Contains(t, sBuf, "errors/kind_error.go:")
 
@@ -495,8 +495,8 @@ type (
 	errUnavailable        struct{ Kind Kind }
 	errWrongVersion       struct{ Kind Kind }
 	errCorruptData        struct{ Kind Kind }
-	errOutofRange         struct{ Kind Kind }
-	errOutofDate          struct{ Kind Kind }
+	errOutOfRange         struct{ Kind Kind }
+	errOutOfDate          struct{ Kind Kind }
 )
 
 func (ae errAborted) Aborted() bool                       { return ae.Kind == Aborted }
@@ -556,8 +556,8 @@ func (ae errTooLarge) TooLarge() bool                     { return ae.Kind == To
 func (ae errUnavailable) Unavailable() bool               { return ae.Kind == Unavailable }
 func (ae errWrongVersion) WrongVersion() bool             { return ae.Kind == WrongVersion }
 func (ae errCorruptData) CorruptData() bool               { return ae.Kind == CorruptData }
-func (ae errOutofRange) OutofRange() bool                 { return ae.Kind == OutofRange }
-func (ae errOutofDate) OutofDate() bool                   { return ae.Kind == OutofDate }
+func (ae errOutOfRange) OutOfRange() bool                 { return ae.Kind == OutOfRange }
+func (ae errOutOfDate) OutOfDate() bool                   { return ae.Kind == OutOfDate }
 
 func (ae errAborted) Error() string            { return "Aborted!" }
 func (ae errAlreadyCaptured) Error() string    { return "AlreadyCaptured!" }
@@ -616,16 +616,16 @@ func (ae errTooLarge) Error() string           { return "TooLarge!" }
 func (ae errUnavailable) Error() string        { return "Unavailable!" }
 func (ae errWrongVersion) Error() string       { return "WrongVersion!" }
 func (ae errCorruptData) Error() string        { return "CorruptData!" }
-func (ae errOutofRange) Error() string         { return "OutofRange!" }
-func (ae errOutofDate) Error() string          { return "OutofDate!" }
+func (ae errOutOfRange) Error() string         { return "OutOfRange!" }
+func (ae errOutOfDate) Error() string          { return "OutOfDate!" }
 
 func TestErrorInterfaces(t *testing.T) {
 	t.Parallel()
 
 	assert.False(t, causedBehaviourIFace(errAborted{Kind: Aborted}, 0), "Aborted")
 	assert.False(t, causedBehaviourIFace(errAborted{Kind: Aborted}, maxKind), "Aborted")
-	assert.False(t, causedBehaviourIFace(errOutofDate{Kind: OutofDate}, maxKind), "OutofDate")
-	assert.False(t, causedBehaviourIFace(errOutofDate{Kind: CorruptData}, CorruptData), "CorruptData OutofDate")
+	assert.False(t, causedBehaviourIFace(errOutOfDate{Kind: OutOfDate}, maxKind), "OutOfDate")
+	assert.False(t, causedBehaviourIFace(errOutOfDate{Kind: CorruptData}, CorruptData), "CorruptData OutOfDate")
 	assert.False(t, Aborted.MatchInterface(Aborted.Newf("Ups")), "Should not match because Aborted does not have an Aborted function")
 
 	assert.True(t, Aborted.MatchInterface(errAborted{Kind: Aborted}), "Aborted")
@@ -685,6 +685,6 @@ func TestErrorInterfaces(t *testing.T) {
 	assert.True(t, Unavailable.MatchInterface(errUnavailable{Kind: Unavailable}), "Unavailable")
 	assert.True(t, WrongVersion.MatchInterface(errWrongVersion{Kind: WrongVersion}), "WrongVersion")
 	assert.True(t, CorruptData.MatchInterface(errCorruptData{Kind: CorruptData}), "CorruptData")
-	assert.True(t, OutofRange.MatchInterface(errOutofRange{Kind: OutofRange}), "OutofRange")
-	assert.True(t, OutofDate.MatchInterface(errOutofDate{Kind: OutofDate}), "OutofDate")
+	assert.True(t, OutOfRange.MatchInterface(errOutOfRange{Kind: OutOfRange}), "OutOfRange")
+	assert.True(t, OutOfDate.MatchInterface(errOutOfDate{Kind: OutOfDate}), "OutOfDate")
 }

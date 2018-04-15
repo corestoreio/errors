@@ -35,7 +35,7 @@ func TestMultiErrors(t *testing.T) {
 	).Error()
 
 	assert.Regexp(t,
-		"Err1\ngithub.com/corestoreio/errors_test.TestMultiErrors\n\t.+/github.com/corestoreio/errors/multierr_test.go:32\ntesting.tRunner\n\t/usr/local/opt/go/libexec/src/testing/testing.go:[0-9]+\nErr2\ngithub.com/corestoreio/errors_test.TestMultiErrors\n\t.+/github.com/corestoreio/errors/multierr_test.go:33\ntesting.tRunner\n\t/usr/local/opt/go/libexec/src/testing/testing.go:[0-9]+\nErr3\ngithub.com/corestoreio/errors_test.TestMultiErrors\n\t.+/github.com/corestoreio/errors/multierr_test.go:34\ntesting.tRunner\n\t.+/testing/testing.go:[0-9]+\n",
+		"Err1\ngithub.com/corestoreio/errors_test.TestMultiErrors\n\t.+/github.com/corestoreio/errors/multierr_test.go:32\ntesting.tRunner\n\t/.+/src/testing/testing.go:[0-9]+\nErr2\ngithub.com/corestoreio/errors_test.TestMultiErrors\n\t.+/github.com/corestoreio/errors/multierr_test.go:33\ntesting.tRunner\n\t/.+/src/testing/testing.go:[0-9]+\nErr3\ngithub.com/corestoreio/errors_test.TestMultiErrors\n\t.+/github.com/corestoreio/errors/multierr_test.go:34\ntesting.tRunner\n\t.+/testing/testing.go:[0-9]+\n",
 		errStr,
 	)
 }
@@ -50,7 +50,7 @@ func TestMultiAppend(t *testing.T) {
 	)
 	assert.True(t, e.HasErrors())
 	assert.Regexp(t,
-		"Err5\ngithub.com/corestoreio/errors_test.TestMultiAppend\n\t.+/github.com/corestoreio/errors/multierr_test.go:46\ntesting.tRunner\n\t/usr/local/opt/go/libexec/src/testing/testing.go:[0-9]+\nErr6\ngithub.com/corestoreio/errors_test.TestMultiAppend\n\t.+/github.com/corestoreio/errors/multierr_test.go:48\ntesting.tRunner\n\t/usr/local/opt/go/libexec/src/testing/testing.go:[0-9]+\nErr7\ngithub.com/corestoreio/errors_test.TestMultiAppend\n\t.+/github.com/corestoreio/errors/multierr_test.go:49\ntesting.tRunner\n\t.+/testing/testing.go:[0-9]+\n",
+		"Err5\ngithub.com/corestoreio/errors_test.TestMultiAppend\n\t.+/github.com/corestoreio/errors/multierr_test.go:46\ntesting.tRunner\n\t/.+/src/testing/testing.go:[0-9]+\nErr6\ngithub.com/corestoreio/errors_test.TestMultiAppend\n\t.+/github.com/corestoreio/errors/multierr_test.go:48\ntesting.tRunner\n\t/.+/src/testing/testing.go:[0-9]+\nErr7\ngithub.com/corestoreio/errors_test.TestMultiAppend\n\t.+/github.com/corestoreio/errors/multierr_test.go:49\ntesting.tRunner\n\t.+/testing/testing.go:[0-9]+\n",
 		e.Error(),
 	)
 }
@@ -90,7 +90,7 @@ func xxxTestMultiErr_CustomFormatter(t *testing.T) {
 	)
 
 	assert.Regexp(t,
-		"Hello1\ngithub.com/corestoreio/errors_test.TestMultiErr_CustomFormatter\n\t.+/github.com/corestoreio/errors/multierr_test.go:84\ntesting.tRunner\n\t/usr/local/opt/go/libexec/src/testing/testing.go:[0-9]+\nAlready closed\ngithub.com/corestoreio/errors.NewAlreadyClosedf\n\t.+/github.com/corestoreio/errors/behaviour.go:414: Brain\nNot found\ngithub.com/corestoreio/errors.NotFound.Newf\n\t.+/github.com/corestoreio/errors/behaviour.go:234: Mind\nHello2\ngithub.com/corestoreio/errors_test.TestMultiErr_CustomFormatter\n\t.+/github.com/corestoreio/errors/multierr_test.go:89\ntesting.tRunner\n\t.+/testing/testing.go:[0-9]+\n",
+		"Hello1\ngithub.com/corestoreio/errors_test.TestMultiErr_CustomFormatter\n\t.+/github.com/corestoreio/errors/multierr_test.go:84\ntesting.tRunner\n\t/.+/src/testing/testing.go:[0-9]+\nAlready closed\ngithub.com/corestoreio/errors.NewAlreadyClosedf\n\t.+/github.com/corestoreio/errors/behaviour.go:414: Brain\nNot found\ngithub.com/corestoreio/errors.NotFound.Newf\n\t.+/github.com/corestoreio/errors/behaviour.go:234: Mind\nHello2\ngithub.com/corestoreio/errors_test.TestMultiErr_CustomFormatter\n\t.+/github.com/corestoreio/errors/multierr_test.go:89\ntesting.tRunner\n\t.+/testing/testing.go:[0-9]+\n",
 		m1.Error())
 
 	m1.Formatter = func(errs []error) string {

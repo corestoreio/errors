@@ -255,10 +255,12 @@ func (k Kind) matchInterface(err error) bool {
 		return e.WrongVersion() && k.isSet(WrongVersion)
 	case iFaceCorruptData:
 		return e.CorruptData() && k.isSet(CorruptData)
-	case iFaceOutofRange:
-		return e.OutofRange() && k.isSet(OutofRange)
-	case iFaceOutofDate:
-		return e.OutofDate() && k.isSet(OutofDate)
+	case iFaceOutOfRange:
+		return e.OutOfRange() && k.isSet(OutOfRange)
+	case iFaceOutOfDate:
+		return e.OutOfDate() && k.isSet(OutOfDate)
+	case iFaceTooShort:
+		return e.TooShort() && k.isSet(TooShort)
 	}
 	return false
 }
@@ -748,8 +750,9 @@ const (
 	Unavailable
 	WrongVersion
 	CorruptData
-	OutofRange
-	OutofDate
+	OutOfRange
+	OutOfDate
+	TooShort
 	maxKind
 )
 
@@ -796,8 +799,8 @@ var _KindMap = map[Kind]string{
 	NotRecoverable:     "NotRecoverable",
 	NotSupported:       "NotSupported",
 	NotValid:           "NotValid",
-	OutofDate:          "OutofDate",
-	OutofRange:         "OutofRange",
+	OutOfDate:          "OutOfDate",
+	OutOfRange:         "OutOfRange",
 	Overflowed:         "Overflowed",
 	PermissionDenied:   "PermissionDenied",
 	QuotaExceeded:      "QuotaExceeded",
@@ -810,6 +813,7 @@ var _KindMap = map[Kind]string{
 	Terminated:         "Terminated",
 	Timeout:            "Timeout",
 	TooLarge:           "TooLarge",
+	TooShort:           "TooShort",
 	Unauthorized:       "Unauthorized",
 	Unavailable:        "Unavailable",
 	UserNotFound:       "UserNotFound",
@@ -825,23 +829,19 @@ type (
 	iFaceAlreadyExists      interface{ AlreadyExists() bool }
 	iFaceAlreadyInUse       interface{ AlreadyInUse() bool }
 	iFaceAlreadyRefunded    interface{ AlreadyRefunded() bool }
-	iFaceBlocked            interface{ Blocked() bool }
-	iFaceReadFailed         interface{ ReadFailed() bool }
-	iFaceWriteFailed        interface{ WriteFailed() bool }
-	iFaceVerificationFailed interface{ VerificationFailed() bool }
-	iFaceDecryptionFailed   interface{ DecryptionFailed() bool }
-	iFaceEncryptionFailed   interface{ EncryptionFailed() bool }
-	iFaceConnectionFailed   interface{ ConnectionFailed() bool }
 	iFaceBadEncoding        interface{ BadEncoding() bool }
+	iFaceBlocked            interface{ Blocked() bool }
+	iFaceConnectionFailed   interface{ ConnectionFailed() bool }
 	iFaceConnectionLost     interface{ ConnectionLost() bool }
+	iFaceCorruptData        interface{ CorruptData() bool }
 	iFaceDeclined           interface{ Declined() bool }
+	iFaceDecryptionFailed   interface{ DecryptionFailed() bool }
 	iFaceDenied             interface{ Denied() bool }
 	iFaceDuplicated         interface{ Duplicated() bool }
-	iFaceNotEmpty           interface{ NotEmpty() bool }
 	iFaceEmpty              interface{ Empty() bool }
+	iFaceEncryptionFailed   interface{ EncryptionFailed() bool }
 	iFaceExceeded           interface{ Exceeded() bool }
 	iFaceExists             interface{ Exists() bool }
-	iFaceNotExists          interface{ NotExists() bool }
 	iFaceExpired            interface{ Expired() bool }
 	iFaceFatal              interface{ Fatal() bool }
 	iFaceInProgress         interface{ InProgress() bool }
@@ -849,22 +849,25 @@ type (
 	iFaceInterrupted        interface{ Interrupted() bool }
 	iFaceIsDirectory        interface{ IsDirectory() bool }
 	iFaceIsFile             interface{ IsFile() bool }
-	iFaceNotDirectory       interface{ NotDirectory() bool }
-	iFaceNotFile            interface{ NotFile() bool }
 	iFaceLocked             interface{ Locked() bool }
 	iFaceMismatch           interface{ Mismatch() bool }
 	iFaceNotAcceptable      interface{ NotAcceptable() bool }
 	iFaceNotAllowed         interface{ NotAllowed() bool }
+	iFaceNotDirectory       interface{ NotDirectory() bool }
+	iFaceNotEmpty           interface{ NotEmpty() bool }
+	iFaceNotExists          interface{ NotExists() bool }
+	iFaceNotFile            interface{ NotFile() bool }
 	iFaceNotFound           interface{ NotFound() bool }
 	iFaceNotImplemented     interface{ NotImplemented() bool }
 	iFaceNotRecoverable     interface{ NotRecoverable() bool }
 	iFaceNotSupported       interface{ NotSupported() bool }
 	iFaceNotValid           interface{ NotValid() bool }
+	iFaceOutOfDate          interface{ OutOfDate() bool }
+	iFaceOutOfRange         interface{ OutOfRange() bool }
 	iFaceOverflowed         interface{ Overflowed() bool }
 	iFacePermissionDenied   interface{ PermissionDenied() bool }
-	iFaceUnauthorized       interface{ Unauthorized() bool }
-	iFaceUserNotFound       interface{ UserNotFound() bool }
 	iFaceQuotaExceeded      interface{ QuotaExceeded() bool }
+	iFaceReadFailed         interface{ ReadFailed() bool }
 	iFaceRejected           interface{ Rejected() bool }
 	iFaceRequired           interface{ Required() bool }
 	iFaceRestricted         interface{ Restricted() bool }
@@ -873,9 +876,11 @@ type (
 	iFaceTerminated         interface{ Terminated() bool }
 	iFaceTimeout            interface{ Timeout() bool }
 	iFaceTooLarge           interface{ TooLarge() bool }
+	iFaceTooShort           interface{ TooShort() bool }
+	iFaceUnauthorized       interface{ Unauthorized() bool }
 	iFaceUnavailable        interface{ Unavailable() bool }
+	iFaceUserNotFound       interface{ UserNotFound() bool }
+	iFaceVerificationFailed interface{ VerificationFailed() bool }
+	iFaceWriteFailed        interface{ WriteFailed() bool }
 	iFaceWrongVersion       interface{ WrongVersion() bool }
-	iFaceCorruptData        interface{ CorruptData() bool }
-	iFaceOutofRange         interface{ OutofRange() bool }
-	iFaceOutofDate          interface{ OutofDate() bool }
 )
