@@ -323,7 +323,8 @@ func TestMarshalling(t *testing.T) {
 		err := (UserNotFound | Temporary | Locked).Newf(errTxt)
 		buf := MarshalAppend(err, nil)
 		sBuf := string(buf)
-		assert.Contains(t, sBuf, "F\x80\x80\x80\x80\x90\x80\x84\x02\x15"+errTxt+"\xcc\x02"+errTxt+"\ngithub.com")
+		//t.Logf("%q", sBuf)
+		assert.Contains(t, sBuf, "F\x80\x80\x80\x80\x90\x80\x84\x02\x15User NF, Temp, Locked\xca\x02User NF, Temp, Locked")
 		assert.Contains(t, sBuf, "errors.Kind.Newf\n\t")
 		assert.Contains(t, sBuf, "errors/kind_error.go:")
 
@@ -430,6 +431,18 @@ func TestKindStacked_MarshalBinary(t *testing.T) {
 	assert.True(t, Is(ge2.Err, NotAllowed), "Should be a NotAllowed Kind")
 	stack := UnwrapStack(ge2.Err)
 	assert.Contains(t, string(stack), "github.com/corestoreio/errors.Kind.New\n")
+}
+
+func TestUnwrapKind_With(t *testing.T) {
+
+	topErr := Interrupted.Newf("Something has been interrupted")
+	err := Wrapf(topErr, "Oh ha")
+	k := UnwrapKind(err)
+	assert.Exactly(t, Interrupted, k)
+
+	err = WithMessage(topErr, "Another message")
+	k = UnwrapKind(err)
+	assert.Exactly(t, Interrupted, k)
 }
 
 type (

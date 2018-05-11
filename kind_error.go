@@ -466,6 +466,10 @@ func UnwrapKind(err error) (k Kind) {
 		k = e.Kind
 	case Kinder:
 		k = e.ErrorKind()
+	case *withMessage:
+		k = UnwrapKind(e.Cause())
+	case *withStack:
+		k = UnwrapKind(e.Cause())
 	}
 	return k
 }
