@@ -1,10 +1,9 @@
 package errors
 
 import (
+	stderrors "errors"
 	"fmt"
 	"testing"
-
-	stderrors "errors"
 )
 
 func noErrors(at, depth int) error {

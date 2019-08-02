@@ -26,8 +26,8 @@ type aExistsEStruct struct{}
 func (a aExistsEStruct) Error() string   { return "Err" }
 func (a aExistsEStruct) ErrorKind() Kind { return AlreadyExists }
 
-func BenchmarkAssertBehaviourEmptyStruct(b *testing.B) {
-	var ae = aExistsEStruct{}
+func BenchmarkAssertKindEmptyStruct(b *testing.B) {
+	ae := aExistsEStruct{}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -43,7 +43,7 @@ type aExistsStr string
 func (c aExistsStr) Error() string   { return string(c) }
 func (c aExistsStr) ErrorKind() Kind { return AlreadyExists }
 
-func BenchmarkAssertBehaviourConstant(b *testing.B) {
+func BenchmarkAssertKindConstant(b *testing.B) {
 	const hell aExistsStr = "Hell"
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -55,7 +55,7 @@ func BenchmarkAssertBehaviourConstant(b *testing.B) {
 	}
 }
 
-func BenchmarkAssertBehaviourPointer(b *testing.B) {
+func BenchmarkAssertKindPointer(b *testing.B) {
 	var hell error = AlreadyExists.New(errors.New("hell"), "There is already a place for you")
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -67,7 +67,7 @@ func BenchmarkAssertBehaviourPointer(b *testing.B) {
 	}
 }
 
-func BenchmarkAssertBehaviourIFace(b *testing.B) {
+func BenchmarkAssertKindIFace(b *testing.B) {
 	var hell error = errTerminated{Kind: Terminated}
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -79,9 +79,9 @@ func BenchmarkAssertBehaviourIFace(b *testing.B) {
 	}
 }
 
-func BenchmarkAssertBehaviourNoMatch(b *testing.B) {
+func BenchmarkAssertKindNoMatch(b *testing.B) {
 	b.Run("type", func(b *testing.B) {
-		var hell = AlreadyClosed.New(errors.New("hell"), "There is already a place for you")
+		hell := AlreadyClosed.New(errors.New("hell"), "There is already a place for you")
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -92,7 +92,7 @@ func BenchmarkAssertBehaviourNoMatch(b *testing.B) {
 		}
 	})
 	b.Run("iface", func(b *testing.B) {
-		var hell = errors.New("not matched")
+		hell := errors.New("not matched")
 		b.ReportAllocs()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -104,51 +104,12 @@ func BenchmarkAssertBehaviourNoMatch(b *testing.B) {
 	})
 }
 
-var benchmarkMultiErr string
+var benchmarkKindUnwrap Kinds
 
-func BenchmarkMultiErr(b *testing.B) {
-	e := NewMultiErr().
-		AppendErrors(
-			errors.New("Err5"),
-			nil,
-			errors.New("Err6"),
-			errors.New("Err7"),
-		)
+func BenchmarkKindUnwrap(b *testing.B) {
 	b.ReportAllocs()
-	b.ResetTimer()
+	const ek = Kind("Aborted|AlreadyCaptured|AlreadyClosed|AlreadyExists|AlreadyInUse|AlreadyRefunded|Blocked|ReadFailed|WriteFailed|VerificationFailed|DecryptionFailed|EncryptionFailed|ConnectionFailed|BadEncoding|ConnectionLost|Declined|Denied|Duplicated|NotEmpty|Empty|Exceeded|Exists|NotExists|Expired|Fatal|InProgress|Insufficient|Interrupted|IsDirectory|IsFile|NotDirectory|NotFile|Locked|Mismatch|NotAcceptable|NotAllowed|NotFound|NotImplemented|NotRecoverable|NotSupported|NotValid|Overflowed|PermissionDenied|Unauthorized|UserNotFound|QuotaExceeded|Rejected|Required|Restricted|Revoked|Temporary|Terminated|Timeout|TooLarge|Unavailable|WrongVersion|CorruptData|OutOfRange|OutOfDate|TooShort")
 	for i := 0; i < b.N; i++ {
-		benchmarkMultiErr = e.Error()
-	}
-}
-
-var errorPointer = errors.New("I'm an error pointer")
-var errorPointer2 = errors.New("I'm an error pointer2")
-
-const errorConstant Error = `I'm an error constant`
-const errorConstant2 Error = `I'm an error constant2`
-
-var errorHave string
-
-func BenchmarkMultiErrPointer(b *testing.B) {
-	merr := NewMultiErr(errorPointer, errorPointer2)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		errorHave = merr.Error()
-		if errorHave == "" {
-			b.Fatal("errorHave is empty")
-		}
-	}
-}
-
-func BenchmarkMultiErrConstant(b *testing.B) {
-	merr := NewMultiErr(errorConstant, errorConstant2)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		errorHave = merr.Error()
-		if errorHave == "" {
-			b.Fatal("errorHave is empty")
-		}
+		benchmarkKindUnwrap = ek.Unwrap()
 	}
 }

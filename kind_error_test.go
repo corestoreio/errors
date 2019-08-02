@@ -15,154 +15,40 @@
 package errors
 
 import (
-	"bytes"
 	"encoding"
-	"encoding/gob"
 	"errors"
 	"fmt"
-	"math"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var (
-	_ fmt.Stringer               = (*Kind)(nil)
-	_ fmt.Stringer               = (*Kinds)(nil)
 	_ encoding.BinaryMarshaler   = (*kindFundamental)(nil)
 	_ encoding.BinaryMarshaler   = (*kindStacked)(nil)
 	_ encoding.BinaryUnmarshaler = (*kindFundamental)(nil)
 	_ encoding.BinaryUnmarshaler = (*kindStacked)(nil)
 )
 
-func TestAttachDetach(t *testing.T) {
-	t.Run("stacked", func(t *testing.T) {
-		err := errors.New("test basic error")
-		bErr := AlreadyInUse.New(err, "Test Error %d!", 9876)
-		bErr = Attach(bErr, Temporary)
-		bErr = Attach(bErr, Unavailable)
-
-		if !Is(bErr, Temporary) {
-			t.Errorf("%#v should have Temporary", bErr)
-		}
-		if !Is(bErr, AlreadyInUse) {
-			t.Errorf("%#v should have AlreadyInUse", bErr)
-		}
-		if !Is(bErr, Unavailable) {
-			t.Errorf("%#v should have Unavailable", bErr)
-		}
-
-		bErr = Detach(bErr, AlreadyInUse)
-		if Is(bErr, AlreadyInUse) {
-			t.Errorf("%#v should have not AlreadyInUse", bErr)
-		}
-
-		bErr = Detach(bErr, Temporary)
-		if Is(bErr, Temporary) {
-			t.Errorf("%#v should have not Temporary", bErr)
-		}
-		bErr = Detach(bErr, ReadFailed)
-		if Is(bErr, ReadFailed) {
-			t.Errorf("%#v should have not ReadFailed", bErr)
-		}
-		if !Is(bErr, Unavailable) {
-			t.Errorf("%#v should have Unavailable", bErr)
-		}
-	})
-	t.Run("fundamental", func(t *testing.T) {
-
-		bErr := AlreadyInUse.Newf("Test Error %d!", 5678)
-		bErr = Attach(bErr, Temporary)
-		bErr = Attach(bErr, WrongVersion)
-
-		if !Is(bErr, WrongVersion) {
-			t.Errorf("%#v should have WrongVersion", bErr)
-		}
-		if !Is(bErr, Temporary) {
-			t.Errorf("%#v should have Temporary", bErr)
-		}
-		if !Is(bErr, AlreadyInUse) {
-			t.Errorf("%#v should have AlreadyInUse", bErr)
-		}
-
-		bErr = Detach(bErr, AlreadyInUse)
-		if Is(bErr, AlreadyInUse) {
-			t.Errorf("%#v should have not AlreadyInUse", bErr)
-		}
-
-		bErr = Detach(bErr, Temporary)
-		if Is(bErr, Temporary) {
-			t.Errorf("%#v should have not Temporary", bErr)
-		}
-		bErr = Detach(bErr, ReadFailed)
-		if Is(bErr, ReadFailed) {
-			t.Errorf("%#v should have not ReadFailed", bErr)
-		}
-		if !Is(bErr, WrongVersion) {
-			t.Errorf("%#v should have WrongVersion", bErr)
-		}
-		if uk := UnwrapKind(bErr); uk != WrongVersion {
-			t.Errorf("bErr should have WrongVersion, but got: %q", uk)
-		}
-
-		bErr = Detach(bErr, WrongVersion)
-		if uk := UnwrapKind(bErr); uk != 0 {
-			t.Errorf("bErr should have no kind, but got: %q", uk)
-		}
-	})
-}
-
-type Error string
-
-func (e Error) Error() string { return string(e) }
-
-type testBehave struct{ kind Kind }
-
-func (nf testBehave) Error() string {
-	return fmt.Sprintf("Has Error Kind %s", nf.kind)
-}
-
-func TestCausedBehaviour(t *testing.T) {
-	runner := func(err error, k Kind, want bool) func(*testing.T) {
-		return func(t *testing.T) {
-			have := CausedBehaviour(err, k)
-			assert.Exactly(t, want, have, "%s", t.Name())
-		}
-	}
-	t.Run("No cause", runner(errors.New("X"), Fatal, false))
-	t.Run("Fatal1", runner(Fatal.Newf("X"), Fatal, true))
-	t.Run("Fatal2", runner(Wrapf(Fatal.Newf("X"), "wrap"), Fatal, true))
-	t.Run("Fatal3", runner(Empty.New(Wrapf(Fatal.Newf("X"), "wrap"), "empty"), Fatal, true))
-	t.Run("Empty1", runner(Empty.New(Wrapf(Fatal.Newf("X"), "wrap"), "empty"), Empty, true))
-	t.Run("Fatal4", runner(Empty.New(Wrapf(Fatal.New(errors.New("X"), "fatal"), "wrap"), "empty"), Fatal, true))
-	t.Run("Empty2", runner(Empty.New(Wrapf(Fatal.New(errors.New("X"), "fatal"), "wrap"), "empty"), Empty, true))
-	t.Run("AlreadyClosed", runner(Empty.New(AlreadyClosed.New(Wrapf(Fatal.New(errors.New("X"), "fatal"), "wrap"), "already closed"), "empty"), AlreadyClosed, true))
-}
-
-func TestError_Error(t *testing.T) {
-	const e1 Error = "e1"
-	assert.EqualError(t, e1, "e1")
-}
-
-func TestWrapf2(t *testing.T) {
-	var e = Wrapf(nil, "Error %d")
-	assert.Nil(t, e)
-}
-
-func TestKind_Match(t *testing.T) {
+func TestErrorDetach(t *testing.T) {
 	tests := []struct {
-		err       error
-		k         Kind
-		wantMatch bool
+		have Kind
+		rm   Kind
+		want Kind
 	}{
-		{Wrap(AlreadyCaptured.Newf("error caused"), "outer"), AlreadyCaptured, true},
-		{Wrap(AlreadyCaptured.New(NotAcceptable.Newf("error inner cause "), "error outer 1"), "outer2"), NotAcceptable, true},
-		{AlreadyCaptured.Newf("error caused"), AlreadyCaptured, true},
+		{"Failed", "Failed", ""},
+		{"Failed", "", "Failed"},
+		{"", "Failed", ""},
+		{"Failed|Aborted", "Failed", "Aborted"},
+		{"Failed|Aborted", "Aborted", "Failed"},
+		{"Failed|Aborted", "Abort3d", "Failed|Aborted"},
+		{"Failed|Aborted|Stuck", "Aborted", "Failed|Stuck"},
+		{"Failed|Aborted|Stuck", "Stuck", "Failed|Aborted"},
+		{"Failed|Aborted|Stuck", "Failed", "Aborted|Stuck"},
+		{"Failed|Aborted|Stuck|", "Failed", "Aborted|Stuck"},
+		{"|Failed|Aborted|Stuck|", "Failed", "Aborted|Stuck"},
 	}
 	for i, test := range tests {
-		if have, want := test.k.Match(test.err), test.wantMatch; have != want {
-			t.Errorf("Index %d: Have %t Want %t", i, have, want)
+		if want, have := test.want, test.have.detach(test.rm); want != have {
+			t.Fatalf("want %q have  %q at index %d", want, have, i)
 		}
 	}
 }
@@ -193,7 +79,6 @@ func TestMatchAll(t *testing.T) {
 }
 
 func TestMatchAny(t *testing.T) {
-
 	tests := []struct {
 		me   error
 		ks   Kinds
@@ -218,8 +103,21 @@ func TestMatchAny(t *testing.T) {
 	}
 }
 
-func TestErrWrapf(t *testing.T) {
+type Error string
 
+func (e Error) Error() string { return string(e) }
+
+type testBehave struct{ kind Kind }
+
+func (nf testBehave) Error() string {
+	return fmt.Sprintf("Has Error Kind %s", nf.kind)
+}
+
+func (nf testBehave) ErrorKind() Kind {
+	return nf.kind
+}
+
+func TestErrWrapf(t *testing.T) {
 	const e Error = "Error1"
 	if haveEB, want := errWrapf(e, "Hello World %#v"), "Hello World %#v"; haveEB.error.(*withMessage).msg != want {
 		t.Errorf("have %q want %q", haveEB.error.(*withMessage).msg, want)
@@ -230,7 +128,6 @@ func TestErrWrapf(t *testing.T) {
 }
 
 func TestErrNewf(t *testing.T) {
-
 	if have, want := errNewf("Hello World %d", 633), "Hello World 633"; have.msg != want {
 		t.Errorf("have %q want %q", have.msg, want)
 	}
@@ -239,31 +136,10 @@ func TestErrNewf(t *testing.T) {
 	}
 }
 
-func (nf testBehave) ErrorKind() Kind {
-	return nf.kind
-}
-
 func TestUnwrapKind(t *testing.T) {
 	var err error = testBehave{kind: Aborted}
 	if have, want := UnwrapKind(err), Aborted; have != want {
 		t.Errorf("Have %q Want %q", have, want)
-	}
-}
-
-func TestUnwrapKinds(t *testing.T) {
-	tests := []struct {
-		err  error
-		want string
-	}{
-		{(UserNotFound | Temporary | Locked).Newf("User NF, Temp, Locked"), Kinds{Locked, UserNotFound, Temporary}.String()},
-		{(UserNotFound).Newf("User NF"), Kinds{UserNotFound}.String()},
-		{errors.New("usual error"), Kinds{}.String()},
-		{nil, Kinds{}.String()},
-		{Kind(math.MaxUint64).Newf("all constants"), Kinds{Aborted, AlreadyCaptured, AlreadyClosed, AlreadyExists, AlreadyInUse, AlreadyRefunded, Blocked, ReadFailed, WriteFailed, VerificationFailed, DecryptionFailed, EncryptionFailed, ConnectionFailed, BadEncoding, ConnectionLost, Declined, Denied, Duplicated, NotEmpty, Empty, Exceeded, Exists, NotExists, Expired, Fatal, InProgress, Insufficient, Interrupted, IsDirectory, IsFile, NotDirectory, NotFile, Locked, Mismatch, NotAcceptable, NotAllowed, NotFound, NotImplemented, NotRecoverable, NotSupported, NotValid, Overflowed, PermissionDenied, Unauthorized, UserNotFound, QuotaExceeded, Rejected, Required, Restricted, Revoked, Temporary, Terminated, Timeout, TooLarge, Unavailable, WrongVersion, CorruptData, OutOfRange, OutOfDate, TooShort}.String()},
-	}
-	for _, test := range tests {
-		want, have := test.want, UnwrapKinds(test.err)
-		assert.Exactly(t, want, have.String())
 	}
 }
 
@@ -296,153 +172,12 @@ func TestKind_String(t *testing.T) {
 	if have, want := Aborted.String(), "Aborted"; have != want {
 		t.Errorf("Have %q Want %q", have, want)
 	}
-	if have, want := Kind(math.MaxUint32).String(), "Aborted,AlreadyCaptured,AlreadyClosed,AlreadyExists,AlreadyInUse,AlreadyRefunded,Blocked,ReadFailed,WriteFailed,VerificationFailed,DecryptionFailed,EncryptionFailed,ConnectionFailed,BadEncoding,ConnectionLost,Declined,Denied,Duplicated,NotEmpty,Empty,Exceeded,Exists,NotExists,Expired,Fatal,InProgress,Insufficient,Interrupted,IsDirectory,IsFile,NotDirectory,NotFile"; have != want {
+	if have, want := Kind(0).String(), ""; have != want {
 		t.Errorf("Have %q Want %q", have, want)
 	}
-	if have, want := Kind(0).String(), "Kind(0)"; have != want {
+	if have, want := Kind("UserNotFound|Temporary|Locked").String(), "UserNotFound|Temporary|Locked"; have != want {
 		t.Errorf("Have %q Want %q", have, want)
 	}
-	if have, want := (UserNotFound | Temporary | Locked).String(), "Locked,UserNotFound,Temporary"; have != want {
-		t.Errorf("Have %q Want %q", have, want)
-	}
-}
-
-func TestKinds_String(t *testing.T) {
-	assert.Exactly(t, "UserNotFound,Temporary,Locked", Kinds{UserNotFound, Temporary, Locked}.String())
-	assert.Exactly(t, "", Kinds{}.String())
-}
-
-func TestUnwrapStack(t *testing.T) {
-	stack := UnwrapStack(nil)
-	assert.Nil(t, stack)
-}
-
-func TestMarshalling(t *testing.T) {
-	t.Run("kindFundamental", func(t *testing.T) {
-		const errTxt = "User NF, Temp, Locked"
-		err := (UserNotFound | Temporary | Locked).Newf(errTxt)
-		buf := MarshalAppend(err, nil)
-		sBuf := string(buf)
-		//t.Logf("%q", sBuf)
-		assert.Contains(t, sBuf, "F\x80\x80\x80\x80\x90\x80\x84\x02\x15User NF, Temp, Locked\xca\x02User NF, Temp, Locked")
-		assert.Contains(t, sBuf, "errors.Kind.Newf\n\t")
-		assert.Contains(t, sBuf, "errors/kind_error.go:")
-
-		err = Unmarshal(buf)
-		assert.Exactly(t, "Locked,UserNotFound,Temporary", UnwrapKinds(err).String())
-		assert.Exactly(t, errTxt, err.Error())
-
-		stack := UnwrapStack(WithStack(err))
-		assert.Contains(t, string(stack), errTxt+"\n")
-		assert.Contains(t, string(stack), "errors/kind_error.go:")
-	})
-	t.Run("kindStacked", func(t *testing.T) {
-		const errTxt = "User NF, Temp, Locked"
-		baseErr := errors.New(errTxt)
-		err := (UserNotFound | Temporary | Locked).New(baseErr, "Marked the base error")
-		buf := MarshalAppend(err, nil)
-		sBuf := string(buf)
-		assert.Contains(t, sBuf, "S\x80\x80\x80\x80\x90\x80\x84\x02,Marked the base error: "+errTxt)
-		assert.Contains(t, sBuf, "errors/kind_error.go:")
-
-		err = Unmarshal(buf)
-		assert.Exactly(t, "Locked,UserNotFound,Temporary", UnwrapKinds(err).String())
-		assert.Exactly(t, ": Marked the base error: User NF, Temp, Locked", err.Error())
-
-		stack := UnwrapStack(err)
-		assert.Contains(t, string(stack), "/errors.Kind.New\n")
-	})
-	t.Run("nil error", func(t *testing.T) {
-		data := MarshalAppend(nil, nil)
-		assert.Nil(t, data)
-	})
-	t.Run("nil data", func(t *testing.T) {
-		data := Unmarshal(nil)
-		assert.Nil(t, data)
-	})
-	t.Run("incorrect formatted data", func(t *testing.T) {
-		err := Unmarshal([]byte("x\x0eordinary error"))
-		assert.True(t, CorruptData.Match(err))
-		assert.EqualError(t, err, "[errors] Unmarshal error: corrupt data \"\\x0eordinary error\"")
-
-		err = Unmarshal([]byte("e\xffordinary error"))
-		assert.EqualError(t, err, "[errors] Unmarshal error[1]. Data length: 15")
-		assert.True(t, Is(err, BadEncoding), "Should be of Kind BadEncoding")
-
-		err = Unmarshal([]byte("eordinary error"))
-		assert.True(t, Is(err, BadEncoding), "Should be of Kind BadEncoding")
-	})
-
-	t.Run("ordinary error", func(t *testing.T) {
-		oErr := errors.New("ordinary error")
-		buf := MarshalAppend(oErr, nil)
-		assert.Exactly(t, "e\x0eordinary error", string(buf))
-
-		err := Unmarshal(buf)
-		assert.EqualError(t, err, "ordinary error")
-		assert.Exactly(t, Kind(0), UnwrapKind(err))
-	})
-}
-
-type gobEncErr struct {
-	FieldA string
-	Err    error
-}
-
-func init() {
-	gob.Register(gobEncErr{})
-	gob.Register(kindFundamental{})
-	gob.Register(kindStacked{})
-}
-
-func TestKindFundamental_MarshalBinary(t *testing.T) {
-	ge := gobEncErr{
-		FieldA: "Hello World",
-		Err:    InProgress.Newf("A process is in progress!"),
-	}
-
-	var buf bytes.Buffer
-	require.NoError(t, gob.NewEncoder(&buf).Encode(ge), "Encoding should not fail")
-	//t.Logf("%q", buf.Bytes())
-
-	var ge2 gobEncErr
-	require.NoError(t, gob.NewDecoder(&buf).Decode(&ge2), "Decoding should not fail")
-	assert.Exactly(t, ge.FieldA, ge2.FieldA)
-	assert.True(t, Is(ge2.Err, InProgress), "Should be a InProgress Kind")
-	stack := UnwrapStack(ge2.Err)
-	assert.Contains(t, string(stack), "A process is in progress!\ngithub.com/corestoreio/errors.Kind.Newf\n")
-}
-
-func TestKindStacked_MarshalBinary(t *testing.T) {
-
-	baseErr := errors.New("@base error@")
-	ge := gobEncErr{
-		FieldA: "Hello Universe",
-		Err:    NotAllowed.New(baseErr, "A process is not allowed!"),
-	}
-
-	var buf bytes.Buffer
-	require.NoError(t, gob.NewEncoder(&buf).Encode(ge), "Encoding should not fail")
-	//t.Logf("%q", buf.Bytes())
-
-	var ge2 gobEncErr
-	require.NoError(t, gob.NewDecoder(&buf).Decode(&ge2), "Decoding should not fail")
-	assert.Exactly(t, ge.FieldA, ge2.FieldA)
-	assert.True(t, Is(ge2.Err, NotAllowed), "Should be a NotAllowed Kind")
-	stack := UnwrapStack(ge2.Err)
-	assert.Contains(t, string(stack), "github.com/corestoreio/errors.Kind.New\n")
-}
-
-func TestUnwrapKind_With(t *testing.T) {
-
-	topErr := Interrupted.Newf("Something has been interrupted")
-	err := Wrapf(topErr, "Oh ha")
-	k := UnwrapKind(err)
-	assert.Exactly(t, Interrupted, k)
-
-	err = WithMessage(topErr, "Another message")
-	k = UnwrapKind(err)
-	assert.Exactly(t, Interrupted, k)
 }
 
 type (
@@ -632,72 +367,84 @@ func (ae errCorruptData) Error() string        { return "CorruptData!" }
 func (ae errOutOfRange) Error() string         { return "OutOfRange!" }
 func (ae errOutOfDate) Error() string          { return "OutOfDate!" }
 
+func assertFalse(t *testing.T, value bool, msgAndArgs ...interface{}) {
+	if value {
+		t.Errorf("Should be false: %t. Message: %v", value, msgAndArgs)
+	}
+}
+
+func assertTrue(t *testing.T, value bool, msgAndArgs ...interface{}) {
+	if !value {
+		t.Errorf("Should be true: %t. Message: %v", value, msgAndArgs)
+	}
+}
+
 func TestErrorInterfaces(t *testing.T) {
 	t.Parallel()
 
-	assert.False(t, causedBehaviourIFace(errAborted{Kind: Aborted}, 0), "Aborted")
-	assert.False(t, causedBehaviourIFace(errAborted{Kind: Aborted}, maxKind), "Aborted")
-	assert.False(t, causedBehaviourIFace(errOutOfDate{Kind: OutOfDate}, maxKind), "OutOfDate")
-	assert.False(t, causedBehaviourIFace(errOutOfDate{Kind: CorruptData}, CorruptData), "CorruptData OutOfDate")
-	assert.False(t, Aborted.MatchInterface(Aborted.Newf("Ups")), "Should not match because Aborted does not have an Aborted function")
+	assertFalse(t, causedBehaviourIFace(errAborted{Kind: Aborted}, ""), "Aborted")
+	assertFalse(t, causedBehaviourIFace(errAborted{Kind: Aborted}, "TODO"), "Aborted")
+	assertFalse(t, causedBehaviourIFace(errOutOfDate{Kind: OutOfDate}, "TODO"), "OutOfDate")
+	assertFalse(t, causedBehaviourIFace(errOutOfDate{Kind: CorruptData}, CorruptData), "CorruptData OutOfDate")
+	assertFalse(t, Aborted.MatchInterface(Aborted.Newf("Ups")), "Should not match because Aborted does not have an Aborted function")
 
-	assert.True(t, Aborted.MatchInterface(errAborted{Kind: Aborted}), "Aborted")
-	assert.True(t, AlreadyCaptured.MatchInterface(errAlreadyCaptured{Kind: AlreadyCaptured}), "AlreadyCaptured")
-	assert.True(t, AlreadyClosed.MatchInterface(errAlreadyClosed{Kind: AlreadyClosed}), "AlreadyClosed")
-	assert.True(t, AlreadyExists.MatchInterface(errAlreadyExists{Kind: AlreadyExists}), "AlreadyExists")
-	assert.True(t, AlreadyInUse.MatchInterface(errAlreadyInUse{Kind: AlreadyInUse}), "AlreadyInUse")
-	assert.True(t, AlreadyRefunded.MatchInterface(errAlreadyRefunded{Kind: AlreadyRefunded}), "AlreadyRefunded")
-	assert.True(t, Blocked.MatchInterface(errBlocked{Kind: Blocked}), "Blocked")
-	assert.True(t, ReadFailed.MatchInterface(errReadFailed{Kind: ReadFailed}), "ReadFailed")
-	assert.True(t, WriteFailed.MatchInterface(errWriteFailed{Kind: WriteFailed}), "WriteFailed")
-	assert.True(t, VerificationFailed.MatchInterface(errVerificationFailed{Kind: VerificationFailed}), "VerificationFailed")
-	assert.True(t, DecryptionFailed.MatchInterface(errDecryptionFailed{Kind: DecryptionFailed}), "DecryptionFailed")
-	assert.True(t, EncryptionFailed.MatchInterface(errEncryptionFailed{Kind: EncryptionFailed}), "EncryptionFailed")
-	assert.True(t, ConnectionFailed.MatchInterface(errConnectionFailed{Kind: ConnectionFailed}), "ConnectionFailed")
-	assert.True(t, BadEncoding.MatchInterface(errBadEncoding{Kind: BadEncoding}), "BadEncoding")
-	assert.True(t, ConnectionLost.MatchInterface(errConnectionLost{Kind: ConnectionLost}), "ConnectionLost")
-	assert.True(t, Declined.MatchInterface(errDeclined{Kind: Declined}), "Declined")
-	assert.True(t, Denied.MatchInterface(errDenied{Kind: Denied}), "Denied")
-	assert.True(t, Duplicated.MatchInterface(errDuplicated{Kind: Duplicated}), "Duplicated")
-	assert.True(t, NotEmpty.MatchInterface(errNotEmpty{Kind: NotEmpty}), "NotEmpty")
-	assert.True(t, Empty.MatchInterface(errEmpty{Kind: Empty}), "Empty")
-	assert.True(t, Exceeded.MatchInterface(errExceeded{Kind: Exceeded}), "Exceeded")
-	assert.True(t, Exists.MatchInterface(errExists{Kind: Exists}), "Exists")
-	assert.True(t, NotExists.MatchInterface(errNotExists{Kind: NotExists}), "NotExists")
-	assert.True(t, Expired.MatchInterface(errExpired{Kind: Expired}), "Expired")
-	assert.True(t, Fatal.MatchInterface(errFatal{Kind: Fatal}), "Fatal")
-	assert.True(t, InProgress.MatchInterface(errInProgress{Kind: InProgress}), "InProgress")
-	assert.True(t, Insufficient.MatchInterface(errInsufficient{Kind: Insufficient}), "Insufficient")
-	assert.True(t, Interrupted.MatchInterface(errInterrupted{Kind: Interrupted}), "Interrupted")
-	assert.True(t, IsDirectory.MatchInterface(errIsDirectory{Kind: IsDirectory}), "IsDirectory")
-	assert.True(t, IsFile.MatchInterface(errIsFile{Kind: IsFile}), "IsFile")
-	assert.True(t, NotDirectory.MatchInterface(errNotDirectory{Kind: NotDirectory}), "NotDirectory")
-	assert.True(t, NotFile.MatchInterface(errNotFile{Kind: NotFile}), "NotFile")
-	assert.True(t, Locked.MatchInterface(errLocked{Kind: Locked}), "Locked")
-	assert.True(t, Mismatch.MatchInterface(errMismatch{Kind: Mismatch}), "Mismatch")
-	assert.True(t, NotAcceptable.MatchInterface(errNotAcceptable{Kind: NotAcceptable}), "NotAcceptable")
-	assert.True(t, NotAllowed.MatchInterface(errNotAllowed{Kind: NotAllowed}), "NotAllowed")
-	assert.True(t, NotFound.MatchInterface(errNotFound{Kind: NotFound}), "NotFound")
-	assert.True(t, NotImplemented.MatchInterface(errNotImplemented{Kind: NotImplemented}), "NotImplemented")
-	assert.True(t, NotRecoverable.MatchInterface(errNotRecoverable{Kind: NotRecoverable}), "NotRecoverable")
-	assert.True(t, NotSupported.MatchInterface(errNotSupported{Kind: NotSupported}), "NotSupported")
-	assert.True(t, NotValid.MatchInterface(errNotValid{Kind: NotValid}), "NotValid")
-	assert.True(t, Overflowed.MatchInterface(errOverflowed{Kind: Overflowed}), "Overflowed")
-	assert.True(t, PermissionDenied.MatchInterface(errPermissionDenied{Kind: PermissionDenied}), "PermissionDenied")
-	assert.True(t, Unauthorized.MatchInterface(errUnauthorized{Kind: Unauthorized}), "Unauthorized")
-	assert.True(t, UserNotFound.MatchInterface(errUserNotFound{Kind: UserNotFound}), "UserNotFound")
-	assert.True(t, QuotaExceeded.MatchInterface(errQuotaExceeded{Kind: QuotaExceeded}), "QuotaExceeded")
-	assert.True(t, Rejected.MatchInterface(errRejected{Kind: Rejected}), "Rejected")
-	assert.True(t, Required.MatchInterface(errRequired{Kind: Required}), "Required")
-	assert.True(t, Restricted.MatchInterface(errRestricted{Kind: Restricted}), "Restricted")
-	assert.True(t, Revoked.MatchInterface(errRevoked{Kind: Revoked}), "Revoked")
-	assert.True(t, Temporary.MatchInterface(errTemporary{Kind: Temporary}), "Temporary")
-	assert.True(t, Terminated.MatchInterface(errTerminated{Kind: Terminated}), "Terminated")
-	assert.True(t, Timeout.MatchInterface(errTimeout{Kind: Timeout}), "Timeout")
-	assert.True(t, TooLarge.MatchInterface(errTooLarge{Kind: TooLarge}), "TooLarge")
-	assert.True(t, Unavailable.MatchInterface(errUnavailable{Kind: Unavailable}), "Unavailable")
-	assert.True(t, WrongVersion.MatchInterface(errWrongVersion{Kind: WrongVersion}), "WrongVersion")
-	assert.True(t, CorruptData.MatchInterface(errCorruptData{Kind: CorruptData}), "CorruptData")
-	assert.True(t, OutOfRange.MatchInterface(errOutOfRange{Kind: OutOfRange}), "OutOfRange")
-	assert.True(t, OutOfDate.MatchInterface(errOutOfDate{Kind: OutOfDate}), "OutOfDate")
+	assertTrue(t, Aborted.MatchInterface(errAborted{Kind: Aborted}), "Aborted")
+	assertTrue(t, AlreadyCaptured.MatchInterface(errAlreadyCaptured{Kind: AlreadyCaptured}), "AlreadyCaptured")
+	assertTrue(t, AlreadyClosed.MatchInterface(errAlreadyClosed{Kind: AlreadyClosed}), "AlreadyClosed")
+	assertTrue(t, AlreadyExists.MatchInterface(errAlreadyExists{Kind: AlreadyExists}), "AlreadyExists")
+	assertTrue(t, AlreadyInUse.MatchInterface(errAlreadyInUse{Kind: AlreadyInUse}), "AlreadyInUse")
+	assertTrue(t, AlreadyRefunded.MatchInterface(errAlreadyRefunded{Kind: AlreadyRefunded}), "AlreadyRefunded")
+	assertTrue(t, Blocked.MatchInterface(errBlocked{Kind: Blocked}), "Blocked")
+	assertTrue(t, ReadFailed.MatchInterface(errReadFailed{Kind: ReadFailed}), "ReadFailed")
+	assertTrue(t, WriteFailed.MatchInterface(errWriteFailed{Kind: WriteFailed}), "WriteFailed")
+	assertTrue(t, VerificationFailed.MatchInterface(errVerificationFailed{Kind: VerificationFailed}), "VerificationFailed")
+	assertTrue(t, DecryptionFailed.MatchInterface(errDecryptionFailed{Kind: DecryptionFailed}), "DecryptionFailed")
+	assertTrue(t, EncryptionFailed.MatchInterface(errEncryptionFailed{Kind: EncryptionFailed}), "EncryptionFailed")
+	assertTrue(t, ConnectionFailed.MatchInterface(errConnectionFailed{Kind: ConnectionFailed}), "ConnectionFailed")
+	assertTrue(t, BadEncoding.MatchInterface(errBadEncoding{Kind: BadEncoding}), "BadEncoding")
+	assertTrue(t, ConnectionLost.MatchInterface(errConnectionLost{Kind: ConnectionLost}), "ConnectionLost")
+	assertTrue(t, Declined.MatchInterface(errDeclined{Kind: Declined}), "Declined")
+	assertTrue(t, Denied.MatchInterface(errDenied{Kind: Denied}), "Denied")
+	assertTrue(t, Duplicated.MatchInterface(errDuplicated{Kind: Duplicated}), "Duplicated")
+	assertTrue(t, NotEmpty.MatchInterface(errNotEmpty{Kind: NotEmpty}), "NotEmpty")
+	assertTrue(t, Empty.MatchInterface(errEmpty{Kind: Empty}), "Empty")
+	assertTrue(t, Exceeded.MatchInterface(errExceeded{Kind: Exceeded}), "Exceeded")
+	assertTrue(t, Exists.MatchInterface(errExists{Kind: Exists}), "Exists")
+	assertTrue(t, NotExists.MatchInterface(errNotExists{Kind: NotExists}), "NotExists")
+	assertTrue(t, Expired.MatchInterface(errExpired{Kind: Expired}), "Expired")
+	assertTrue(t, Fatal.MatchInterface(errFatal{Kind: Fatal}), "Fatal")
+	assertTrue(t, InProgress.MatchInterface(errInProgress{Kind: InProgress}), "InProgress")
+	assertTrue(t, Insufficient.MatchInterface(errInsufficient{Kind: Insufficient}), "Insufficient")
+	assertTrue(t, Interrupted.MatchInterface(errInterrupted{Kind: Interrupted}), "Interrupted")
+	assertTrue(t, IsDirectory.MatchInterface(errIsDirectory{Kind: IsDirectory}), "IsDirectory")
+	assertTrue(t, IsFile.MatchInterface(errIsFile{Kind: IsFile}), "IsFile")
+	assertTrue(t, NotDirectory.MatchInterface(errNotDirectory{Kind: NotDirectory}), "NotDirectory")
+	assertTrue(t, NotFile.MatchInterface(errNotFile{Kind: NotFile}), "NotFile")
+	assertTrue(t, Locked.MatchInterface(errLocked{Kind: Locked}), "Locked")
+	assertTrue(t, Mismatch.MatchInterface(errMismatch{Kind: Mismatch}), "Mismatch")
+	assertTrue(t, NotAcceptable.MatchInterface(errNotAcceptable{Kind: NotAcceptable}), "NotAcceptable")
+	assertTrue(t, NotAllowed.MatchInterface(errNotAllowed{Kind: NotAllowed}), "NotAllowed")
+	assertTrue(t, NotFound.MatchInterface(errNotFound{Kind: NotFound}), "NotFound")
+	assertTrue(t, NotImplemented.MatchInterface(errNotImplemented{Kind: NotImplemented}), "NotImplemented")
+	assertTrue(t, NotRecoverable.MatchInterface(errNotRecoverable{Kind: NotRecoverable}), "NotRecoverable")
+	assertTrue(t, NotSupported.MatchInterface(errNotSupported{Kind: NotSupported}), "NotSupported")
+	assertTrue(t, NotValid.MatchInterface(errNotValid{Kind: NotValid}), "NotValid")
+	assertTrue(t, Overflowed.MatchInterface(errOverflowed{Kind: Overflowed}), "Overflowed")
+	assertTrue(t, PermissionDenied.MatchInterface(errPermissionDenied{Kind: PermissionDenied}), "PermissionDenied")
+	assertTrue(t, Unauthorized.MatchInterface(errUnauthorized{Kind: Unauthorized}), "Unauthorized")
+	assertTrue(t, UserNotFound.MatchInterface(errUserNotFound{Kind: UserNotFound}), "UserNotFound")
+	assertTrue(t, QuotaExceeded.MatchInterface(errQuotaExceeded{Kind: QuotaExceeded}), "QuotaExceeded")
+	assertTrue(t, Rejected.MatchInterface(errRejected{Kind: Rejected}), "Rejected")
+	assertTrue(t, Required.MatchInterface(errRequired{Kind: Required}), "Required")
+	assertTrue(t, Restricted.MatchInterface(errRestricted{Kind: Restricted}), "Restricted")
+	assertTrue(t, Revoked.MatchInterface(errRevoked{Kind: Revoked}), "Revoked")
+	assertTrue(t, Temporary.MatchInterface(errTemporary{Kind: Temporary}), "Temporary")
+	assertTrue(t, Terminated.MatchInterface(errTerminated{Kind: Terminated}), "Terminated")
+	assertTrue(t, Timeout.MatchInterface(errTimeout{Kind: Timeout}), "Timeout")
+	assertTrue(t, TooLarge.MatchInterface(errTooLarge{Kind: TooLarge}), "TooLarge")
+	assertTrue(t, Unavailable.MatchInterface(errUnavailable{Kind: Unavailable}), "Unavailable")
+	assertTrue(t, WrongVersion.MatchInterface(errWrongVersion{Kind: WrongVersion}), "WrongVersion")
+	assertTrue(t, CorruptData.MatchInterface(errCorruptData{Kind: CorruptData}), "CorruptData")
+	assertTrue(t, OutOfRange.MatchInterface(errOutOfRange{Kind: OutOfRange}), "OutOfRange")
+	assertTrue(t, OutOfDate.MatchInterface(errOutOfDate{Kind: OutOfDate}), "OutOfDate")
 }

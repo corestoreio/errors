@@ -19,17 +19,18 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
 	"strings"
 )
+
+const KindSeparator = "|"
+const kindSeparatorRune = '|'
 
 // Kind defines the kind or behaviour of an error. An error can have multiple
 // Kinds wrapped into each other via bit operations. A zero Kind represents an
 // empty Kind. The underlying type uint might change, so please use the
 // functions provided in this package to manipulate the Kind. 63 different
 // constants are currently supported.
-type Kind uint64
+type Kind string
 
 // Kinds a slice of Kind. Each Kind does not contain any other Kind.
 type Kinds []Kind
@@ -42,7 +43,7 @@ type Kinder interface {
 
 // Empty returns true if no behaviour/kind has been set.
 func (k Kind) Empty() bool {
-	return k == 0
+	return k == ""
 }
 
 // Unwrap returns all Kind where the bit flag is set. If Kind is empty, returns
@@ -51,32 +52,71 @@ func (k Kind) Unwrap() Kinds {
 	if k.Empty() {
 		return nil
 	}
-	var ks Kinds
-	const one Kind = 1 // Go type system ;-)
-	for i := one - 1; i < maxKindExp; i++ {
-		if k2 := one << i; k.isSet(k2) {
-			ks = append(ks, k2)
-		}
+	c := strings.Count(string(k), KindSeparator)
+	if c == 0 {
+		return Kinds{k}
 	}
+	// the following code is an optimized strings.Split
+	ks := make(Kinds, c+1)
+	e := strings.IndexByte(string(k), kindSeparatorRune)
+	for i := 0; i < c; i++ {
+		if e < 0 {
+			e = len(k)
+		}
+		ks[i] = k[0:e]
+		k = k[e+1:]
+		e = strings.IndexByte(string(k), kindSeparatorRune)
+	}
+	ks[c] = k
 	return ks
+
+	// ks2 := strings.Split(string(k), KindSeparator)
+	// ks := make(Kinds, len(ks2))
+	// for i, k2 := range ks2 {
+	// 	ks[i] = Kind(k2)
+	// }
+	// return ks
 }
 
 func (k Kind) isSet(k2 Kind) bool {
-	return k&k2 != 0
+	return strings.Contains(string(k), string(k2))
 }
 
 func (k Kind) attach(k2 Kind) Kind {
-	return k | k2 // bit set
+	return k + KindSeparator + k2 // bit set
 }
 
 func (k Kind) detach(k2 Kind) Kind {
-	return k & ^k2 // bit clear
+	switch {
+	case k == k2:
+		return ""
+	case k == "":
+		return ""
+	case k2 == "":
+		return k
+	}
+
+	idx := strings.Index(string(k), string(k2))
+	if idx < 0 {
+		return k
+	}
+	a := Kind(strings.TrimPrefix(strings.TrimSuffix(string(k[0:idx]), KindSeparator), KindSeparator))
+	b := Kind(strings.TrimPrefix(strings.TrimSuffix(string(k[idx+len(k2):]), KindSeparator), KindSeparator))
+
+	switch {
+	case len(a) == 0:
+		return b
+	case len(b) == 0:
+		return a
+	default:
+		return a + KindSeparator + b
+	}
 }
 
 func (ks Kinds) matchAll(k Kind) bool {
 	match := 0
 	for _, kss := range ks {
-		if k > 0 && kss > 0 && k.isSet(kss) {
+		if k != "" && kss != "" && k.isSet(kss) {
 			match++
 		}
 	}
@@ -85,7 +125,7 @@ func (ks Kinds) matchAll(k Kind) bool {
 
 func (ks Kinds) matchAny(k Kind) bool {
 	for _, kss := range ks {
-		if k > 0 && kss > 0 && k.isSet(kss) {
+		if k != "" && kss != "" && k.isSet(kss) {
 			return true
 		}
 	}
@@ -105,36 +145,20 @@ func (ks Kinds) String() string {
 }
 
 func (k Kind) String() string {
-	if str, ok := _KindMap[k]; ok {
-		return str
+	if k == Kind("\x00") {
+		return ""
 	}
-	isWrapped := false
-	var buf strings.Builder
-	for i, k2 := range k.Unwrap() {
-		if i > 0 {
-			buf.WriteByte(',')
-		}
-		if str, ok := _KindMap[k2]; ok {
-			buf.WriteString(str)
-		} else {
-			buf.WriteString("Kind(" + strconv.FormatUint(uint64(k), 10) + ")")
-		}
-		isWrapped = true
-	}
-	if isWrapped {
-		return buf.String()
-	}
-	return "Kind(" + strconv.FormatUint(uint64(k), 10) + ")"
+	return string(k)
 }
 
 func (k Kind) match(err error) bool {
 	switch e := err.(type) {
 	case kindStacked:
-		return e.Kind&k != 0
+		return e.Kind.isSet(k)
 	case kindFundamental:
-		return e.Kind&k != 0
+		return e.Kind.isSet(k)
 	case Kinder:
-		return e.ErrorKind()&k != 0
+		return e.ErrorKind().isSet(k)
 	}
 	return false
 }
@@ -319,10 +343,7 @@ func (e kindStacked) MarshalBinary() ([]byte, error) {
 // is nil.
 func (e kindStacked) MarshalAppend(b []byte) []byte {
 	// Encode: Kind, stack
-	var tmp [16]byte // For use by PutVarint.
-	N := binary.PutUvarint(tmp[:], uint64(e.Kind))
-	b = append(b, tmp[:N]...)
-
+	b = appendString(b, e.Kind.String())
 	if e.withStack != nil && e.withStack.error != nil {
 		b = appendString(b, e.withStack.error.Error())
 	} else {
@@ -342,13 +363,8 @@ func (e *kindStacked) UnmarshalBinary(b []byte) error {
 		return nil
 	}
 	// Decode: Kind, msg, stack
-	k, N := binary.Uvarint(b)
-	if N < 0 {
-		return Fatal.Newf("[errors] Error Kind overflows uint64: %d with data: %q", N, b)
-	}
-	e.Kind = Kind(k)
-	b = b[N:]
-
+	kRaw, b, err := getBytes(b)
+	e.Kind = Kind(kRaw)
 	orgErr, b, err := getBytes(b)
 	if err != nil {
 		return WithStack(err)
@@ -370,9 +386,7 @@ func (e *kindStacked) UnmarshalBinary(b []byte) error {
 // is nil.
 func (e kindFundamental) MarshalAppend(b []byte) []byte {
 	// Encode: Kind, msg, stack
-	var tmp [16]byte // For use by PutVarint.
-	N := binary.PutUvarint(tmp[:], uint64(e.Kind))
-	b = append(b, tmp[:N]...)
+	b = appendString(b, e.Kind.String())
 	b = appendString(b, e.msg)
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "%+v", e.fundamental)
@@ -393,13 +407,8 @@ func (e *kindFundamental) UnmarshalBinary(b []byte) error {
 		return nil
 	}
 	// Decode: Kind, msg, stack
-	k, N := binary.Uvarint(b)
-	if N < 0 {
-		return Fatal.Newf("[errors] Error Kind overflows uint64: %d with data: %q", N, b)
-	}
-	e.Kind = Kind(k)
-	b = b[N:]
-
+	kRaw, b, err := getBytes(b)
+	e.Kind = Kind(kRaw)
 	msg, b, err := getBytes(b)
 	if err != nil {
 		return WithStack(err)
@@ -692,139 +701,72 @@ func causedBehaviourIFace(err error, k Kind) bool {
 
 // NoKind defines an empty Kind with no behaviour. This constant must be placed
 // outside the constant block to avoid a conflict with iota.
-const NoKind Kind = 0
+const NoKind Kind = ""
 
 // These constants define different behaviours. They are not sorted and new
 // constants must be appended at the end. The zero kind defines empty.
 const (
-	Aborted Kind = 1 << iota
-	AlreadyCaptured
-	AlreadyClosed
-	AlreadyExists
-	AlreadyInUse
-	AlreadyRefunded
-	Blocked
-	ReadFailed
-	WriteFailed
-	VerificationFailed
-	DecryptionFailed
-	EncryptionFailed
-	ConnectionFailed
-	BadEncoding
-	ConnectionLost
-	Declined
-	Denied
-	Duplicated
-	NotEmpty
-	Empty
-	Exceeded
-	Exists
-	NotExists
-	Expired
-	Fatal
-	InProgress
-	Insufficient
-	Interrupted
-	IsDirectory
-	IsFile
-	NotDirectory
-	NotFile
-	Locked
-	Mismatch
-	NotAcceptable
-	NotAllowed
-	NotFound
-	NotImplemented
-	NotRecoverable
-	NotSupported
-	NotValid
-	Overflowed
-	PermissionDenied
-	Unauthorized
-	UserNotFound
-	QuotaExceeded
-	Rejected
-	Required
-	Restricted
-	Revoked
-	Temporary
-	Terminated
-	Timeout
-	TooLarge
-	Unavailable
-	WrongVersion
-	CorruptData
-	OutOfRange
-	OutOfDate
-	TooShort
-	maxKind
+	Aborted            Kind = "Aborted"
+	AlreadyCaptured    Kind = "AlreadyCaptured"
+	AlreadyClosed      Kind = "AlreadyClosed"
+	AlreadyExists      Kind = "AlreadyExists"
+	AlreadyInUse       Kind = "AlreadyInUse"
+	AlreadyRefunded    Kind = "AlreadyRefunded"
+	BadEncoding        Kind = "BadEncoding"
+	Blocked            Kind = "Blocked"
+	ConnectionFailed   Kind = "ConnectionFailed"
+	ConnectionLost     Kind = "ConnectionLost"
+	CorruptData        Kind = "CorruptData"
+	Declined           Kind = "Declined"
+	DecryptionFailed   Kind = "DecryptionFailed"
+	Denied             Kind = "Denied"
+	Duplicated         Kind = "Duplicated"
+	Empty              Kind = "Empty"
+	EncryptionFailed   Kind = "EncryptionFailed"
+	Exceeded           Kind = "Exceeded"
+	Exists             Kind = "Exists"
+	Expired            Kind = "Expired"
+	Fatal              Kind = "Fatal"
+	InProgress         Kind = "InProgress"
+	Insufficient       Kind = "Insufficient"
+	Interrupted        Kind = "Interrupted"
+	IsDirectory        Kind = "IsDirectory"
+	IsFile             Kind = "IsFile"
+	Locked             Kind = "Locked"
+	Mismatch           Kind = "Mismatch"
+	NotAcceptable      Kind = "NotAcceptable"
+	NotAllowed         Kind = "NotAllowed"
+	NotDirectory       Kind = "NotDirectory"
+	NotEmpty           Kind = "NotEmpty"
+	NotExists          Kind = "NotExists"
+	NotFile            Kind = "NotFile"
+	NotFound           Kind = "NotFound"
+	NotImplemented     Kind = "NotImplemented"
+	NotRecoverable     Kind = "NotRecoverable"
+	NotSupported       Kind = "NotSupported"
+	NotValid           Kind = "NotValid"
+	OutOfDate          Kind = "OutOfDate"
+	OutOfRange         Kind = "OutOfRange"
+	Overflowed         Kind = "Overflowed"
+	PermissionDenied   Kind = "PermissionDenied"
+	QuotaExceeded      Kind = "QuotaExceeded"
+	ReadFailed         Kind = "ReadFailed"
+	Rejected           Kind = "Rejected"
+	Required           Kind = "Required"
+	Restricted         Kind = "Restricted"
+	Revoked            Kind = "Revoked"
+	Temporary          Kind = "Temporary"
+	Terminated         Kind = "Terminated"
+	Timeout            Kind = "Timeout"
+	TooLarge           Kind = "TooLarge"
+	TooShort           Kind = "TooShort"
+	Unauthorized       Kind = "Unauthorized"
+	Unavailable        Kind = "Unavailable"
+	UserNotFound       Kind = "UserNotFound"
+	VerificationFailed Kind = "VerificationFailed"
+	WriteFailed        Kind = "WriteFailed"
+	WrongVersion       Kind = "WrongVersion"
 )
-
-var maxKindExp = Kind(math.Log2(float64(maxKind))) // should be a constant ...
-
-// _KindMap contains alphabetically sorted error constants.
-var _KindMap = map[Kind]string{
-	Aborted:            "Aborted",
-	AlreadyCaptured:    "AlreadyCaptured",
-	AlreadyClosed:      "AlreadyClosed",
-	AlreadyExists:      "AlreadyExists",
-	AlreadyInUse:       "AlreadyInUse",
-	AlreadyRefunded:    "AlreadyRefunded",
-	BadEncoding:        "BadEncoding",
-	Blocked:            "Blocked",
-	ConnectionFailed:   "ConnectionFailed",
-	ConnectionLost:     "ConnectionLost",
-	CorruptData:        "CorruptData",
-	Declined:           "Declined",
-	DecryptionFailed:   "DecryptionFailed",
-	Denied:             "Denied",
-	Duplicated:         "Duplicated",
-	Empty:              "Empty",
-	EncryptionFailed:   "EncryptionFailed",
-	Exceeded:           "Exceeded",
-	Exists:             "Exists",
-	Expired:            "Expired",
-	Fatal:              "Fatal",
-	InProgress:         "InProgress",
-	Insufficient:       "Insufficient",
-	Interrupted:        "Interrupted",
-	IsDirectory:        "IsDirectory",
-	IsFile:             "IsFile",
-	Locked:             "Locked",
-	Mismatch:           "Mismatch",
-	NotAcceptable:      "NotAcceptable",
-	NotAllowed:         "NotAllowed",
-	NotDirectory:       "NotDirectory",
-	NotEmpty:           "NotEmpty",
-	NotExists:          "NotExists",
-	NotFile:            "NotFile",
-	NotFound:           "NotFound",
-	NotImplemented:     "NotImplemented",
-	NotRecoverable:     "NotRecoverable",
-	NotSupported:       "NotSupported",
-	NotValid:           "NotValid",
-	OutOfDate:          "OutOfDate",
-	OutOfRange:         "OutOfRange",
-	Overflowed:         "Overflowed",
-	PermissionDenied:   "PermissionDenied",
-	QuotaExceeded:      "QuotaExceeded",
-	ReadFailed:         "ReadFailed",
-	Rejected:           "Rejected",
-	Required:           "Required",
-	Restricted:         "Restricted",
-	Revoked:            "Revoked",
-	Temporary:          "Temporary",
-	Terminated:         "Terminated",
-	Timeout:            "Timeout",
-	TooLarge:           "TooLarge",
-	TooShort:           "TooShort",
-	Unauthorized:       "Unauthorized",
-	Unavailable:        "Unavailable",
-	UserNotFound:       "UserNotFound",
-	VerificationFailed: "VerificationFailed",
-	WriteFailed:        "WriteFailed",
-	WrongVersion:       "WrongVersion",
-}
 
 type (
 	iFaceAborted            interface{ Aborted() bool }
