@@ -22,6 +22,7 @@ import (
 	"strings"
 )
 
+// KindSeparator separates multiple Kinds packed into one Kind.
 const KindSeparator = "|"
 const kindSeparatorRune = '|'
 
@@ -69,13 +70,6 @@ func (k Kind) Unwrap() Kinds {
 	}
 	ks[c] = k
 	return ks
-
-	// ks2 := strings.Split(string(k), KindSeparator)
-	// ks := make(Kinds, len(ks2))
-	// for i, k2 := range ks2 {
-	// 	ks[i] = Kind(k2)
-	// }
-	// return ks
 }
 
 func (k Kind) isSet(k2 Kind) bool {
@@ -83,7 +77,7 @@ func (k Kind) isSet(k2 Kind) bool {
 }
 
 func (k Kind) attach(k2 Kind) Kind {
-	return k + KindSeparator + k2 // bit set
+	return k + KindSeparator + k2
 }
 
 func (k Kind) detach(k2 Kind) Kind {
@@ -144,11 +138,18 @@ func (ks Kinds) String() string {
 	return buf.String()
 }
 
+// String returns the underlying string.
 func (k Kind) String() string {
 	if k == Kind("\x00") {
 		return ""
 	}
 	return string(k)
+}
+
+// Error implements error interface and returns the string without any
+// formatting or stack trace. It calls under the hood the string function.
+func (k Kind) Error() string {
+	return k.String()
 }
 
 func (k Kind) match(err error) bool {
@@ -306,7 +307,7 @@ func (k Kind) MatchInterface(err error) bool {
 }
 
 // New wraps err with the specified Kind. Allows to write an additional message
-// which gets formatted by fmt.Sprintf.
+// which gets formatted by fmt.Sprintf. It attaches a stack trace.
 func (k Kind) New(err error, msg string, args ...interface{}) error {
 	if err == nil {
 		return nil
@@ -314,7 +315,7 @@ func (k Kind) New(err error, msg string, args ...interface{}) error {
 	return kindStacked{withStack: errWrapf(err, msg, args...), Kind: k}
 }
 
-// Newf creates a new error with a message formatted by fmt.Sprintf.
+// Newf creates a new error with a message formatted by fmt.Sprintf and a stack trace.
 func (k Kind) Newf(format string, args ...interface{}) error {
 	return kindFundamental{fundamental: errNewf(format, args...), Kind: k}
 }

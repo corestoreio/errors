@@ -124,7 +124,9 @@ func TestWrapf_Nil(t *testing.T) {
 	e := errors.Wrapf(nil, "Error %d", 987654321)
 	assert.Nil(t, e)
 	e = errors.Wrapf(errors.WriteFailed.Newf("Damn it"), "Error %d", 987654321)
-	assert.NoError(t, e)
+	assert.Error(t, e)
+	e = errors.Wrapf(errors.WriteFailed, "Error")
+	assert.Error(t, e)
 }
 
 func TestKind_Match(t *testing.T) {

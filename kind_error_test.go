@@ -22,11 +22,19 @@ import (
 )
 
 var (
+	_ error                      = (*Kind)(nil)
 	_ encoding.BinaryMarshaler   = (*kindFundamental)(nil)
 	_ encoding.BinaryMarshaler   = (*kindStacked)(nil)
 	_ encoding.BinaryUnmarshaler = (*kindFundamental)(nil)
 	_ encoding.BinaryUnmarshaler = (*kindStacked)(nil)
 )
+
+func TestKind_Error(t *testing.T) {
+	const xErr1 Kind = "xErr1"
+	if have, want := xErr1.Error(), "xErr1"; have != want {
+		t.Errorf("xErr1 should return itself unformatted")
+	}
+}
 
 func TestErrorDetach(t *testing.T) {
 	tests := []struct {
