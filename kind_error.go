@@ -667,6 +667,9 @@ func errNewf(format string, args ...interface{}) *fundamental {
 // If the error does not implement Cause or is nil, false will be returned. The
 // variable `k` gets called on each unwrapped "cause" error.
 func CausedBehaviour(err error, k Kind) bool {
+	if err == nil {
+		return false
+	}
 	if k.match(err) {
 		return true
 	}

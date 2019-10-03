@@ -110,6 +110,7 @@ func TestCausedBehaviour(t *testing.T) {
 			assert.Exactly(t, want, have, "%s", t.Name())
 		}
 	}
+	t.Run("nil", runner(nil, errors.Fatal, false))
 	t.Run("No cause", runner(errors.New("X"), errors.Fatal, false))
 	t.Run("Fatal1", runner(errors.Fatal.Newf("X"), errors.Fatal, true))
 	t.Run("Fatal2", runner(errors.Wrapf(errors.Fatal.Newf("X"), "wrap"), errors.Fatal, true))
