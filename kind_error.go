@@ -160,6 +160,10 @@ func (k Kind) match(err error) bool {
 		return e.Kind.isSet(k)
 	case Kinder:
 		return e.ErrorKind().isSet(k)
+	case Kind:
+		return e == k
+	case error:
+		return e.Error() == k.String()
 	}
 	return false
 }

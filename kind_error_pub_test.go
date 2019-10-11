@@ -103,13 +103,25 @@ func TestAttachDetach(t *testing.T) {
 	})
 }
 
+type funcErr func()
+
+func (fe funcErr) Error() string {
+	return errors.UserNotFound.String()
+}
+
 func TestCausedBehaviour(t *testing.T) {
+	const ErrServerUserAccountExists = errors.AlreadyExists + errors.KindSeparator + "User"
+
 	runner := func(err error, k errors.Kind, want bool) func(*testing.T) {
 		return func(t *testing.T) {
 			have := errors.CausedBehaviour(err, k)
 			assert.Exactly(t, want, have, "%s", t.Name())
 		}
 	}
+	t.Run("custom type stack", runner(errors.WithStack(ErrServerUserAccountExists), ErrServerUserAccountExists, true))
+	t.Run("custom type no stack", runner(ErrServerUserAccountExists, ErrServerUserAccountExists, true))
+	t.Run("custom type wrapped in fatal", runner(errors.Fatal.New(ErrServerUserAccountExists, "a fatal already exists user"), ErrServerUserAccountExists, true))
+	t.Run("func with error iface", runner(funcErr(func() {}), errors.UserNotFound, true))
 	t.Run("nil", runner(nil, errors.Fatal, false))
 	t.Run("No cause", runner(errors.New("X"), errors.Fatal, false))
 	t.Run("Fatal1", runner(errors.Fatal.Newf("X"), errors.Fatal, true))
