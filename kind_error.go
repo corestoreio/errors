@@ -23,8 +23,10 @@ import (
 )
 
 // KindSeparator separates multiple Kinds packed into one Kind.
-const KindSeparator = "|"
-const kindSeparatorRune = '|'
+const (
+	KindSeparator     = "|"
+	kindSeparatorRune = '|'
+)
 
 // Kind defines the kind or behaviour of an error. An error can have multiple
 // Kinds wrapped into each other via bit operations. A zero Kind represents an
@@ -431,17 +433,17 @@ func (e *kindFundamental) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-// Is returns true if `err` is of Kind `k`. It unwraps all underlying errors
-// which implement the Causer interface.
-// Does not supported implemented behaviour functions.
-func Is(err error, k Kind) bool {
+// MatchKind returns true if `err` is of Kind `k`. It unwraps all underlying
+// errors which implement the Causer interface. Does not supported implemented
+// behaviour functions.
+func MatchKind(err error, k Kind) bool {
 	return k.Match(err)
 }
 
-// MatchAny checks if at least one Kind is included in `err`. It does not unwrap
-// `err` by its `Causer` interface.
-// Does not supported implemented behaviour functions.
-func MatchAny(err error, k ...Kind) bool {
+// MatchAnyKind checks if at least one Kind is included in `err`. It does not
+// unwrap `err` by its `Causer` interface. Does not supported implemented
+// behaviour functions.
+func MatchAnyKind(err error, k ...Kind) bool {
 	if err == nil {
 		return false
 	}
@@ -449,10 +451,10 @@ func MatchAny(err error, k ...Kind) bool {
 	return Kinds(k).matchAny(uk)
 }
 
-// MatchAll checks if all Kinds are included in `err`. It does not unwrap `err`
-// by its `Causer` interface.
-// Does not supported implemented behaviour functions.
-func MatchAll(err error, k ...Kind) bool {
+// MatchAllKind checks if all Kinds are included in `err`. It does not unwrap `err`
+// by its `Causer` interface. Does not supported implemented behaviour
+// functions.
+func MatchAllKind(err error, k ...Kind) bool {
 	if err == nil {
 		return false
 	}
@@ -695,11 +697,11 @@ func causedBehaviourIFace(err error, k Kind) bool {
 		return true
 	}
 	for err != nil {
-		cause, ok := err.(causer)
-		if !ok {
-			return false
+		var c causer
+		if !As(err, &c) {
+			break
 		}
-		err = cause.Cause() // don't touch if you're unsure
+		err = c.Cause() // don't touch if you're unsure
 		if k.matchInterface(err) {
 			return true
 		}

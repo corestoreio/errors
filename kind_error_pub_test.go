@@ -34,30 +34,30 @@ func TestAttachDetach(t *testing.T) {
 		bErr = errors.Attach(bErr, errors.Temporary)
 		bErr = errors.Attach(bErr, errors.Unavailable)
 
-		if !errors.Is(bErr, errors.Temporary) {
+		if !errors.MatchKind(bErr, errors.Temporary) {
 			t.Errorf("%#v should have Temporary", bErr)
 		}
-		if !errors.Is(bErr, errors.AlreadyInUse) {
+		if !errors.MatchKind(bErr, errors.AlreadyInUse) {
 			t.Errorf("%#v should have AlreadyInUse", bErr)
 		}
-		if !errors.Is(bErr, errors.Unavailable) {
+		if !errors.MatchKind(bErr, errors.Unavailable) {
 			t.Errorf("%#v should have Unavailable", bErr)
 		}
 
 		bErr = errors.Detach(bErr, errors.AlreadyInUse)
-		if errors.Is(bErr, errors.AlreadyInUse) {
+		if errors.MatchKind(bErr, errors.AlreadyInUse) {
 			t.Errorf("%#v should have not AlreadyInUse", bErr)
 		}
 
 		bErr = errors.Detach(bErr, errors.Temporary)
-		if errors.Is(bErr, errors.Temporary) {
+		if errors.MatchKind(bErr, errors.Temporary) {
 			t.Errorf("%#v should have not Temporary", bErr)
 		}
 		bErr = errors.Detach(bErr, errors.ReadFailed)
-		if errors.Is(bErr, errors.ReadFailed) {
+		if errors.MatchKind(bErr, errors.ReadFailed) {
 			t.Errorf("%#v should have not ReadFailed", bErr)
 		}
-		if !errors.Is(bErr, errors.Unavailable) {
+		if !errors.MatchKind(bErr, errors.Unavailable) {
 			t.Errorf("%#v should have Unavailable", bErr)
 		}
 	})
@@ -66,30 +66,30 @@ func TestAttachDetach(t *testing.T) {
 		bErr = errors.Attach(bErr, errors.Temporary)
 		bErr = errors.Attach(bErr, errors.WrongVersion)
 
-		if !errors.Is(bErr, errors.WrongVersion) {
+		if !errors.MatchKind(bErr, errors.WrongVersion) {
 			t.Errorf("%#v should have WrongVersion", bErr)
 		}
-		if !errors.Is(bErr, errors.Temporary) {
+		if !errors.MatchKind(bErr, errors.Temporary) {
 			t.Errorf("%#v should have Temporary", bErr)
 		}
-		if !errors.Is(bErr, errors.AlreadyInUse) {
+		if !errors.MatchKind(bErr, errors.AlreadyInUse) {
 			t.Errorf("%#v should have AlreadyInUse", bErr)
 		}
 
 		bErr = errors.Detach(bErr, errors.AlreadyInUse)
-		if errors.Is(bErr, errors.AlreadyInUse) {
+		if errors.MatchKind(bErr, errors.AlreadyInUse) {
 			t.Errorf("%#v should have not AlreadyInUse", bErr)
 		}
 
 		bErr = errors.Detach(bErr, errors.Temporary)
-		if errors.Is(bErr, errors.Temporary) {
+		if errors.MatchKind(bErr, errors.Temporary) {
 			t.Errorf("%#v should have not Temporary", bErr)
 		}
 		bErr = errors.Detach(bErr, errors.ReadFailed)
-		if errors.Is(bErr, errors.ReadFailed) {
+		if errors.MatchKind(bErr, errors.ReadFailed) {
 			t.Errorf("%#v should have not ReadFailed", bErr)
 		}
-		if !errors.Is(bErr, errors.WrongVersion) {
+		if !errors.MatchKind(bErr, errors.WrongVersion) {
 			t.Errorf("%#v should have WrongVersion", bErr)
 		}
 		if uk := errors.UnwrapKind(bErr); uk != errors.WrongVersion {
@@ -240,10 +240,10 @@ func TestMarshalling(t *testing.T) {
 
 		err = errors.Unmarshal([]byte("e\xffordinary error"))
 		assert.EqualError(t, err, "[errors] Unmarshal error[1]. Data length: 15")
-		assert.True(t, errors.Is(err, errors.BadEncoding), "Should be of Kind BadEncoding")
+		assert.True(t, errors.MatchKind(err, errors.BadEncoding), "Should be of Kind BadEncoding")
 
 		err = errors.Unmarshal([]byte("eordinary error"))
-		assert.True(t, errors.Is(err, errors.BadEncoding), "Should be of Kind BadEncoding")
+		assert.True(t, errors.MatchKind(err, errors.BadEncoding), "Should be of Kind BadEncoding")
 	})
 
 	t.Run("ordinary error", func(t *testing.T) {

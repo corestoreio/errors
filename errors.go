@@ -25,6 +25,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"io"
 )
@@ -89,7 +90,8 @@ type withStack struct {
 	*stack
 }
 
-func (w *withStack) Cause() error { return w.error }
+func (w *withStack) Cause() error  { return w.error }
+func (w *withStack) Unwrap() error { return w.error }
 
 func (w *withStack) Format(s fmt.State, verb rune) {
 	switch verb {
@@ -125,7 +127,7 @@ func Wrap(err error, message string) error {
 }
 
 // Wrapf returns an error annotating err with a stack trace
-// at the point Wrapf is call, and the format specifier.
+// at the point Wrapf is called, and the format specifier.
 // If err is nil, Wrapf returns nil.
 func Wrapf(err error, format string, args ...interface{}) error {
 	if err == nil {
@@ -141,6 +143,34 @@ func Wrapf(err error, format string, args ...interface{}) error {
 	}
 }
 
+// Is reports whether any error in err's chain matches target.
+//
+// The chain consists of err itself followed by the sequence of errors obtained by
+// repeatedly calling Unwrap.
+//
+// An error is considered to match a target if it is equal to that target or if
+// it implements a method Is(error) bool such that Is(target) returns true.
+func Is(err error, target error) bool {
+	return errors.Is(err, target)
+}
+
+// As finds the first error in err's chain that matches target, and if so, sets
+// target to that error value and returns true.
+//
+// The chain consists of err itself followed by the sequence of errors obtained by
+// repeatedly calling Unwrap.
+//
+// An error matches target if the error's concrete value is assignable to the value
+// pointed to by target, or if the error has a method As(interface{}) bool such that
+// As(target) returns true. In the latter case, the As method is responsible for
+// setting target.
+//
+// As will panic if target is not a non-nil pointer to either a type that implements
+// error, or to any interface type. As returns false if err is nil.
+func As(err error, target interface{}) bool {
+	return errors.As(err, target)
+}
+
 // WithMessage annotates err with a new message.
 // If err is nil, WithMessage returns nil.
 func WithMessage(err error, message string) error {
@@ -153,6 +183,18 @@ func WithMessage(err error, message string) error {
 	}
 }
 
+// WithMessagef annotates err with the format specifier.
+// If err is nil, WithMessagef returns nil.
+func WithMessagef(err error, format string, args ...interface{}) error {
+	if err == nil {
+		return nil
+	}
+	return &withMessage{
+		cause: err,
+		msg:   fmt.Sprintf(format, args...),
+	}
+}
+
 type withMessage struct {
 	cause error
 	msg   string
@@ -160,6 +202,7 @@ type withMessage struct {
 
 func (w *withMessage) Error() string { return w.msg + ": " + w.cause.Error() }
 func (w *withMessage) Cause() error  { return w.cause }
+func (w *withMessage) Unwrap() error { return w.cause }
 
 func (w *withMessage) Format(s fmt.State, verb rune) {
 	switch verb {
@@ -188,11 +231,11 @@ func (w *withMessage) Format(s fmt.State, verb rune) {
 // investigation.
 func Cause(err error) error {
 	for err != nil {
-		cause, ok := err.(causer)
-		if !ok {
+		var c causer
+		if !As(err, &c) {
 			break
 		}
-		err = cause.Cause()
+		err = c.Cause()
 	}
 	return err
 }

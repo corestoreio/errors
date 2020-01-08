@@ -222,6 +222,32 @@ func TestWithMessage(t *testing.T) {
 	}
 }
 
+func TestWithMessagefNil(t *testing.T) {
+	got := WithMessagef(nil, "no error")
+	if got != nil {
+		t.Errorf("WithMessage(nil, \"no error\"): got %#v, expected nil", got)
+	}
+}
+
+func TestWithMessagef(t *testing.T) {
+	tests := []struct {
+		err     error
+		message string
+		want    string
+	}{
+		{io.EOF, "read error", "read error: EOF"},
+		{WithMessagef(io.EOF, "read error without format specifier"), "client error", "client error: read error without format specifier: EOF"},
+		{WithMessagef(io.EOF, "read error with %d format specifier", 1), "client error", "client error: read error with 1 format specifier: EOF"},
+	}
+
+	for _, tt := range tests {
+		got := WithMessagef(tt.err, tt.message).Error()
+		if got != tt.want {
+			t.Errorf("WithMessage(%v, %q): got: %q, want %q", tt.err, tt.message, got, tt.want)
+		}
+	}
+}
+
 // errors.New, etc values are not expected to be compared by value
 // but the change in errors#27 made them incomparable. Assert that
 // various kinds of errors have a functional equality operator, even
@@ -245,5 +271,26 @@ func TestErrorEquality(t *testing.T) {
 		for j := range vals {
 			_ = vals[i] == vals[j] // mustn't panic
 		}
+	}
+}
+
+func TestIs(t *testing.T) {
+	sentinelError := errors.New("sentinel error")
+	wrap := Wrap(sentinelError, "wrap error")
+	if !Is(wrap, sentinelError) {
+		t.Errorf("Expected that '%v' error and the '%v' error should be of the same type", sentinelError, wrap)
+	}
+}
+
+func TestAs(t *testing.T) {
+	type myError struct {
+		error
+	}
+	err := &myError{errors.New("error")}
+	wrap := Wrap(err, "wrap error")
+
+	var tt *myError
+	if !As(wrap, &tt) {
+		t.Errorf("Expected that '%v' error and the '%v' error should be of the same type", err, wrap)
 	}
 }

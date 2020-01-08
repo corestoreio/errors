@@ -80,7 +80,7 @@ func TestMatchAll(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		if have, want := MatchAll(test.me, test.ks...), test.want; have != want {
+		if have, want := MatchAllKind(test.me, test.ks...), test.want; have != want {
 			t.Errorf("Index %d: Have %t Want %t", i, have, want)
 		}
 	}
@@ -105,7 +105,7 @@ func TestMatchAny(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		if have, want := MatchAny(test.me, test.ks...), test.want; have != want {
+		if have, want := MatchAnyKind(test.me, test.ks...), test.want; have != want {
 			t.Errorf("Index %d: Have %t Want %t", i, have, want)
 		}
 	}
