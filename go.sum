@@ -1,9 +1,11 @@
 github.com/alecthomas/colour v0.1.0 h1:nOE9rJm6dsZ66RGWYSFrXw461ZIt9A6+nHgL7FRrDUk=
 github.com/alecthomas/colour v0.1.0/go.mod h1:QO9JBoKquHd+jz9nshCh40fOfO+JzsoXy8qTHF68zU0=
-github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 h1:GDQdwm/gAcJcLAKQQZGOJ4knlw+7rfEQQcmwTbt4p5E=
-github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1/go.mod h1:xTS7Pm1pD1mvyM075QCDSRqH6qRLXylzS24ZTpRiSzQ=
-github.com/corestoreio/pkg v0.0.0-20200105200018-672d61ae0854 h1:MWteXRWALNVU4dOgQz3b4YeaA3MLNOa9G3r9j/5+6YI=
-github.com/corestoreio/pkg v0.0.0-20200105200018-672d61ae0854/go.mod h1:lGltRKbxlr2gsZEhkNef6mRFPpUOxF7N0FnED8+T4Vg=
+github.com/alecthomas/repr v0.0.0-20201120212035-bb82daffcca2 h1:G5TeG64Ox4OWq2YwlsxS7nOedU8vbGgNRTRDAjGvDCk=
+github.com/alecthomas/repr v0.0.0-20201120212035-bb82daffcca2/go.mod h1:2kn6fqh/zIyPLmm3ugklbEi5hg5wS435eygvNfaDQL8=
+github.com/corestoreio/log v3.0.0+incompatible h1:CP5jzZsBiF3z7pSs2/9qmxcDlUYT5hiMG3lT+C3CLE8=
+github.com/corestoreio/log v3.0.0+incompatible/go.mod h1:PhIOQFoFR/yqcQ8XQK+cQXJOa4Q3KdVzx3BD63nIlqM=
+github.com/corestoreio/pkg v0.0.0-20201201204006-073bfa0fc611 h1:NL6Hm0NxeLcoXFMDtrtbLkh5/QI6Ov5B+WTHP8TLhyA=
+github.com/corestoreio/pkg v0.0.0-20201201204006-073bfa0fc611/go.mod h1:lGltRKbxlr2gsZEhkNef6mRFPpUOxF7N0FnED8+T4Vg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -21,6 +23,8 @@ github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNX
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
+golang.org/x/sync v0.0.0-20201207232520-09787c993a3a h1:DcqTD9SDLc+1P/r1EmRBwnVsrOwW+kk2vWf9n+1sGhs=
+golang.org/x/sync v0.0.0-20201207232520-09787c993a3a/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 h1:YyJpGZS1sBuBCzLAR1VEpK193GlqGZbnPFnPV/5Rsb4=
 golang.org/x/sys v0.0.0-20191026070338-33540a1f6037/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
